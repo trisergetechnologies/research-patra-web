@@ -1,0 +1,59 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 80px; /* Adjusted for navbar height */
+}
+
+body {
+  font-family: 'Outfit', sans-serif;
+  /* CHANGED: Using pure white background */
+  background-color: #FFFFFF; 
+  /* CHANGED: Using the new deep navy for text */
+  color: #0F172A; 
+  overflow-x: hidden;
+}
+
+/* Custom Orange Scrollbar */
+::-webkit-scrollbar {
+  width: 12px;
+}
+::-webkit-scrollbar-track {
+  background: #F8FAFC; 
+}
+::-webkit-scrollbar-thumb {
+  background: #F97316; /* Updated to Orange */
+  border-radius: 10px;
+  border: 3px solid #F8FAFC; 
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #EA580C; /* Updated to Dark Orange */
+}
+
+/* Smooth Scrolling & Selection */
+html {
+  scroll-behavior: smooth;
+}
+::selection {
+  background-color: #F97316; /* Highlight text is now orange */
+  color: white;
+}/* GLOBAL MOBILE GAP FIX */
+@media (max-width: 768px) {
+  section {
+    padding-top: 2rem !important;
+    padding-bottom: 2rem !important;
+  }
+}
+
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-slide-up {
+  animation: slide-up 0.35s ease-out forwards;
+}

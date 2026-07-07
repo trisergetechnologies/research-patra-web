@@ -1,0 +1,37 @@
+# Research Patra
+> Ethical academic research writing, analysis, and manuscript formatting support.
+
+## What we do
+- Thesis and dissertation chapter writing
+- Research proposals and synopses
+- Research papers and systematic literature reviews
+- Statistical and bibliometric analysis (SPSS, R, Python, VOSviewer)
+- Patent documentation and prior art research support
+- Manuscript formatting for Scopus, SCI, and UGC Care guidelines
+- Editing and proofreading for academic manuscripts
+
+## Pages
+- / : Home
+- /services : All services overview
+- /about : About Research Patra
+- /how-we-work : Engagement process and revision policy
+- /research-areas : Disciplines and academic levels we support
+- /ethical-approach : Academic integrity and ethics policy
+- /privacy-policy : Privacy policy
+- /terms-and-conditions : Terms and conditions
+- /topic-selection : Research topic selection support
+- /synopsis : Research proposal and synopsis writing
+- /thesis-writing : Thesis and dissertation writing
+- /research-papers : Research and review paper writing
+- /systematic-review : Systematic literature review support
+- /statistical-analysis : Statistical data analysis
+- /bibliometric-analysis : Bibliometric and scientometric analysis
+- /patent-support : Patent documentation and prior art support
+- /editing-proofreading : Editing and proofreading
+- /scopus-publication : Scopus manuscript formatting support
+- /sci-journal-publication : SCI / WoS manuscript formatting support
+- /ugc-publication : UGC Care and conference paper support
+
+## Contact
+- Email: researchpatra@gmail.com
+- Phone: +91 7827295033
