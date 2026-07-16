@@ -59,8 +59,8 @@ const journeySteps = [
 ];
 
 const academicLevels = [
-  { icon: GraduationCap, label: 'Undergraduate & Masters' },
-  { icon: FlaskConical, label: 'PhD & Doctoral Scholars' },
+  { icon: GraduationCap, label: 'Undergraduate and Postgraduate Students' },
+  { icon: FlaskConical, label: 'Doctoral Candidates (Research Scholars)' },
   { icon: Briefcase, label: 'Working Professionals' },
   { icon: HeartPulse, label: 'Medical & Life Sciences' },
   { icon: Scale, label: 'Law & Social Sciences' },

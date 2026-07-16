@@ -16,7 +16,7 @@ const areas = [
   { name: 'Agriculture & Environment', text: 'Field research papers, data analysis, and UGC Care manuscript support.', services: ['/research-papers', '/ugc-publication'] },
 ];
 
-const levels = ['Undergraduate & Masters', 'PhD & Doctoral Scholars', 'Working Professionals', 'Faculty Researchers'];
+const levels = ['Undergraduate and Postgraduate Students', 'Doctoral Candidates (Research Scholars)', 'Working Professionals', 'Faculty Researchers'];
 
 const ResearchAreas = () => (
   <div className="bg-white overflow-x-hidden">
