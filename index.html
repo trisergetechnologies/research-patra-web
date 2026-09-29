@@ -10,6 +10,40 @@
     
     <title>Research Patra | Academic Research Writing Support</title>
     <meta name="description" content="Ethical thesis writing, research proposals, data analysis, and manuscript formatting for scholars worldwide." />
+    <script>
+      (function () {
+        try {
+          var t = localStorage.getItem('theme');
+          var dark = t === 'dark' || (!t && window.matchMedia('(prefers-color-scheme: dark)').matches);
+          var r = document.documentElement;
+          if (dark) {
+            r.classList.add('dark');
+            r.style.setProperty('--page', '11 18 32');
+            r.style.setProperty('--surface', '17 24 39');
+            r.style.setProperty('--body', '248 250 252');
+            r.style.setProperty('--muted', '203 213 225');
+            r.style.setProperty('--border', '255 255 255');
+            r.style.setProperty('--soft', '15 23 42');
+            r.style.setProperty('--badge', '249 115 22');
+            r.style.setProperty('--scroll-track', '#0F172A');
+            r.style.setProperty('--border-solid', 'rgba(255, 255, 255, 0.10)');
+            r.style.setProperty('--badge-solid', 'rgba(249, 115, 22, 0.15)');
+          } else {
+            r.classList.remove('dark');
+            r.style.setProperty('--page', '255 255 255');
+            r.style.setProperty('--surface', '255 255 255');
+            r.style.setProperty('--body', '15 23 42');
+            r.style.setProperty('--muted', '100 116 139');
+            r.style.setProperty('--border', '226 232 240');
+            r.style.setProperty('--soft', '248 250 252');
+            r.style.setProperty('--badge', '255 247 237');
+            r.style.setProperty('--scroll-track', '#F8FAFC');
+            r.style.setProperty('--border-solid', '#E2E8F0');
+            r.style.setProperty('--badge-solid', '#FFF7ED');
+          }
+        } catch (e) {}
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

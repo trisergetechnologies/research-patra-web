@@ -14,7 +14,7 @@ const steps = [
 ];
 
 const HowWeWork = () => (
-  <div className="bg-white overflow-x-hidden">
+  <div className="bg-surface overflow-x-hidden">
     <PageMeta title={meta.metaTitle} description={meta.metaDescription} path={meta.path} />
     <section className="py-20 md:py-24 bg-[#0F172A] text-center px-6">
       <h1 className="text-4xl md:text-5xl font-black text-white mb-4">How We Work</h1>
@@ -25,22 +25,22 @@ const HowWeWork = () => (
     <section className="py-16 max-w-5xl mx-auto px-6">
       <div className="grid md:grid-cols-2 gap-6">
         {steps.map(({ icon: Icon, title, text }) => (
-          <div key={title} className="p-6 rounded-2xl border border-gray-100 bg-slate-50">
+          <div key={title} className="p-6 rounded-2xl border border-theme bg-soft">
             <Icon className="text-[#F97316] mb-3" size={28} />
-            <h2 className="font-bold text-[#0F172A] mb-2">{title}</h2>
-            <p className="text-sm text-gray-600 leading-relaxed">{text}</p>
+            <h2 className="font-bold text-body mb-2">{title}</h2>
+            <p className="text-sm text-muted leading-relaxed">{text}</p>
           </div>
         ))}
       </div>
     </section>
-    <section className="py-16 bg-slate-50 border-y border-gray-100 px-6">
+    <section className="py-16 bg-soft border-y border-theme px-6">
       <div className="max-w-3xl mx-auto text-center">
-        <h2 className="text-2xl font-extrabold text-[#0F172A] mb-4">Confidentiality & communication</h2>
-        <p className="text-gray-600 leading-relaxed">
+        <h2 className="text-2xl font-extrabold text-body mb-4">Confidentiality & communication</h2>
+        <p className="text-muted leading-relaxed">
           Your project details, documents, and correspondence are handled with care. We keep you updated at each
           phase and welcome supervisor feedback as part of the agreed revision process.
         </p>
-        <p className="mt-4 text-sm text-gray-500">
+        <p className="mt-4 text-sm text-muted">
           Learn more about our standards on the{' '}
           <Link to="/ethical-approach" className="text-[#F97316] font-bold hover:underline">
             Ethical Approach
@@ -50,13 +50,13 @@ const HowWeWork = () => (
       </div>
     </section>
     <section className="py-16 max-w-5xl mx-auto px-6">
-      <h2 className="text-2xl font-extrabold text-[#0F172A] mb-6 text-center">Our Services</h2>
+      <h2 className="text-2xl font-extrabold text-body mb-6 text-center">Our Services</h2>
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
         {Object.values(SERVICE_PAGES).map((s) => (
           <Link
             key={s.path}
             to={s.path}
-            className="text-sm font-semibold px-4 py-3 bg-white border border-gray-100 rounded-xl hover:border-[#F97316] hover:text-[#F97316] transition-colors"
+            className="text-sm font-semibold px-4 py-3 bg-surface border border-theme rounded-xl hover:border-[#F97316] hover:text-[#F97316] transition-colors"
           >
             {s.title}
           </Link>

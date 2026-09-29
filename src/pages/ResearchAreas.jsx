@@ -19,7 +19,7 @@ const areas = [
 const levels = ['Undergraduate and Postgraduate Students', 'Doctoral Candidates (Research Scholars)', 'Working Professionals', 'Faculty Researchers'];
 
 const ResearchAreas = () => (
-  <div className="bg-white overflow-x-hidden">
+  <div className="bg-surface overflow-x-hidden">
     <PageMeta title={meta.metaTitle} description={meta.metaDescription} path={meta.path} />
     <section className="py-20 md:py-24 bg-[#0F172A] text-center px-6">
       <h1 className="text-4xl md:text-5xl font-black text-white mb-4">Research Areas We Support</h1>
@@ -30,7 +30,7 @@ const ResearchAreas = () => (
     <section className="py-12 px-6">
       <div className="max-w-4xl mx-auto flex flex-wrap justify-center gap-2">
         {levels.map((level) => (
-          <span key={level} className="text-xs font-semibold px-4 py-2 bg-orange-50 border border-orange-100 rounded-full text-[#0F172A]">
+          <span key={level} className="text-xs font-semibold px-4 py-2 bg-badge border border-orange-100 rounded-full text-body">
             {level}
           </span>
         ))}
@@ -38,9 +38,9 @@ const ResearchAreas = () => (
     </section>
     <section className="py-8 max-w-6xl mx-auto px-6 grid md:grid-cols-2 gap-6 pb-16">
       {areas.map((area) => (
-        <div key={area.name} className="p-6 rounded-2xl border border-gray-100 bg-slate-50">
-          <h2 className="text-lg font-bold text-[#0F172A] mb-2">{area.name}</h2>
-          <p className="text-sm text-gray-600 leading-relaxed mb-4">{area.text}</p>
+        <div key={area.name} className="p-6 rounded-2xl border border-theme bg-soft">
+          <h2 className="text-lg font-bold text-body mb-2">{area.name}</h2>
+          <p className="text-sm text-muted leading-relaxed mb-4">{area.text}</p>
           <div className="flex flex-wrap gap-2">
             {area.services.map((to) => (
               <Link key={to} to={to} className="text-xs font-bold text-[#F97316] hover:underline">

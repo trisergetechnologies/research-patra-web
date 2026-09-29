@@ -12,7 +12,7 @@ export default function ServicePageLayout({ page, children }) {
   if (!page) return null;
 
   return (
-    <div className="bg-white font-sans selection:bg-[#F97316] selection:text-white overflow-x-hidden">
+    <div className="bg-surface font-sans selection:bg-[#F97316] selection:text-white overflow-x-hidden">
       <PageMeta title={page.metaTitle} description={page.metaDescription} path={page.path} />
       <ServiceHero badge={page.hero.badge} title={page.hero.title} subtitle={page.hero.subtitle} />
       {children}

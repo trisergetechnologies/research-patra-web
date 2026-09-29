@@ -1,8 +1,9 @@
 import React from 'react';
 import Chatbot from './Chatbot';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { ContactFormProvider } from './context/ContactFormContext';
 import { ChatbotProvider } from './context/ChatbotContext';
+import { ThemeProvider } from './context/ThemeContext';
 
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
@@ -33,10 +34,22 @@ import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsAndConditions from './pages/TermsAndConditions';
 import BibliometricAnalysis from './pages/BibliometricAnalysis';
 import PatentSupport from './pages/PatentSupport';
+import Start from './pages/Start';
 
 function AppLayout() {
+  const { pathname } = useLocation();
+  const isAdLanding = pathname === '/start';
+
+  if (isAdLanding) {
+    return (
+      <Routes>
+        <Route path="/start" element={<Start />} />
+      </Routes>
+    );
+  }
+
   return (
-    <div className="min-h-screen w-full overflow-x-hidden bg-white font-sans text-[#0F172A] flex flex-col">
+    <div className="min-h-screen w-full overflow-x-hidden bg-page font-sans text-body flex flex-col">
       <Navbar />
       <main className="flex-grow">
         <Routes>
@@ -74,11 +87,13 @@ function App() {
   return (
     <Router>
       <ScrollToTop />
-      <ContactFormProvider>
-        <ChatbotProvider>
-          <AppLayout />
-        </ChatbotProvider>
-      </ContactFormProvider>
+      <ThemeProvider>
+        <ContactFormProvider>
+          <ChatbotProvider>
+            <AppLayout />
+          </ChatbotProvider>
+        </ContactFormProvider>
+      </ThemeProvider>
     </Router>
   );
 }

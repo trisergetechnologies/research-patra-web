@@ -4,17 +4,43 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --page: 255 255 255;
+  --surface: 255 255 255;
+  --body: 15 23 42;
+  --muted: 100 116 139;
+  --border: 226 232 240;
+  --soft: 248 250 252;
+  --badge: 255 247 237;
+  --scroll-track: #F8FAFC;
+  --border-solid: #E2E8F0;
+  --badge-solid: #FFF7ED;
+}
+
+/* Keep both selectors — class may sit on html; tokens must flip with dark: utilities */
+.dark,
+html.dark {
+  --page: 11 18 32;
+  --surface: 17 24 39;
+  --body: 248 250 252;
+  --muted: 203 213 225;
+  --border: 255 255 255;
+  --soft: 15 23 42;
+  --badge: 249 115 22;
+  --scroll-track: #0F172A;
+  --border-solid: rgba(255, 255, 255, 0.10);
+  --badge-solid: rgba(249, 115, 22, 0.15);
+}
+
 html {
   scroll-behavior: smooth;
-  scroll-padding-top: 80px; /* Adjusted for navbar height */
+  scroll-padding-top: 80px;
 }
 
 body {
   font-family: 'Outfit', sans-serif;
-  /* CHANGED: Using pure white background */
-  background-color: #FFFFFF; 
-  /* CHANGED: Using the new deep navy for text */
-  color: #0F172A; 
+  background-color: rgb(var(--page));
+  color: rgb(var(--body));
   overflow-x: hidden;
 }
 
@@ -23,25 +49,23 @@ body {
   width: 12px;
 }
 ::-webkit-scrollbar-track {
-  background: #F8FAFC; 
+  background: var(--scroll-track);
 }
 ::-webkit-scrollbar-thumb {
-  background: #F97316; /* Updated to Orange */
+  background: #F97316;
   border-radius: 10px;
-  border: 3px solid #F8FAFC; 
+  border: 3px solid var(--scroll-track);
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #EA580C; /* Updated to Dark Orange */
+  background: #EA580C;
 }
 
-/* Smooth Scrolling & Selection */
-html {
-  scroll-behavior: smooth;
-}
 ::selection {
-  background-color: #F97316; /* Highlight text is now orange */
+  background-color: #F97316;
   color: white;
-}/* GLOBAL MOBILE GAP FIX */
+}
+
+/* GLOBAL MOBILE GAP FIX */
 @media (max-width: 768px) {
   section {
     padding-top: 2rem !important;

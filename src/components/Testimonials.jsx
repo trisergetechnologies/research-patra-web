@@ -30,7 +30,7 @@ const Testimonials = () => {
 
         <div className="flex items-center justify-between gap-6 relative">
           
-          <button className="hidden md:flex w-10 h-10 bg-white rounded-full items-center justify-center text-[#0F172A] hover:bg-gray-200 transition-colors absolute -left-5 z-10 shadow-lg hover:scale-110">
+          <button className="hidden md:flex w-10 h-10 bg-surface rounded-full items-center justify-center text-body hover:bg-gray-200 transition-colors absolute -left-5 z-10 shadow-lg hover:scale-110">
             <ChevronLeft size={24} />
           </button>
 
@@ -53,7 +53,7 @@ const Testimonials = () => {
             ))}
           </div>
 
-          <button className="hidden md:flex w-10 h-10 bg-white rounded-full items-center justify-center text-[#0F172A] hover:bg-gray-200 transition-colors absolute -right-5 z-10 shadow-lg hover:scale-110">
+          <button className="hidden md:flex w-10 h-10 bg-surface rounded-full items-center justify-center text-body hover:bg-gray-200 transition-colors absolute -right-5 z-10 shadow-lg hover:scale-110">
             <ChevronRight size={24} />
           </button>
 

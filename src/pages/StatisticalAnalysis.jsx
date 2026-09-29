@@ -5,7 +5,7 @@ import ServicePageLayout from '../components/service/ServicePageLayout';
 const page = getServicePage('statistical-analysis');
 
 const SoftwareStack = () => (
-  <section className="py-8 bg-[#F97316] border-y-4 border-white">
+  <section className="py-8 bg-[#F97316] border-y-4 border-page">
     <div className="max-w-7xl mx-auto px-6">
       <p className="text-center text-orange-100 font-bold tracking-widest uppercase text-sm mb-4">
         Software & Tools We Use
@@ -22,7 +22,7 @@ const SoftwareStack = () => (
 const Capabilities = () => (
   <section className="py-16 max-w-7xl mx-auto px-6">
     <div className="text-center mb-12">
-      <h2 className="text-3xl font-extrabold text-[#0F172A]">Analytical Capabilities</h2>
+      <h2 className="text-3xl font-extrabold text-body">Analytical Capabilities</h2>
     </div>
     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
       {[
@@ -30,17 +30,17 @@ const Capabilities = () => (
         { icon: Activity, title: 'Inferential Statistics', text: 'ANOVA, t-tests, chi-square, correlation, and regression.' },
         { icon: TrendingUp, title: 'Structural Equation Modeling', text: 'CFA, mediation, and moderation using AMOS or SmartPLS.' },
       ].map(({ icon: Icon, title, text }) => (
-        <div key={title} className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
+        <div key={title} className="bg-surface p-6 rounded-2xl border border-theme shadow-sm">
           <Icon className="text-[#F97316] mb-4" size={28} />
-          <h3 className="font-bold text-[#0F172A] mb-2">{title}</h3>
-          <p className="text-sm text-gray-600 leading-relaxed">{text}</p>
+          <h3 className="font-bold text-body mb-2">{title}</h3>
+          <p className="text-sm text-muted leading-relaxed">{text}</p>
         </div>
       ))}
-      <div className="lg:col-span-3 bg-slate-50 p-6 rounded-2xl border border-gray-200 flex flex-col md:flex-row gap-4 items-start">
+      <div className="lg:col-span-3 bg-soft p-6 rounded-2xl border border-theme flex flex-col md:flex-row gap-4 items-start">
         <Terminal className="text-[#F97316] shrink-0" size={32} />
         <div>
-          <h3 className="font-bold text-[#0F172A] mb-2">Advanced Analysis (R & Python)</h3>
-          <p className="text-sm text-gray-600 leading-relaxed">
+          <h3 className="font-bold text-body mb-2">Advanced Analysis (R & Python)</h3>
+          <p className="text-sm text-muted leading-relaxed">
             Custom statistical scripts, data cleaning, and advanced modeling for thesis and journal requirements.
           </p>
         </div>

@@ -16,7 +16,7 @@ const POPUP_B = {
 
 const HelpPopup = () => {
   const [activePopup, setActivePopup] = useState(null);
-  const { openContactForm } = useContactForm();
+  const { isModalOpen, openContactForm } = useContactForm();
   const { openChatbot } = useChatbot();
 
   const dismiss = useCallback((key) => {
@@ -59,31 +59,50 @@ const HelpPopup = () => {
     };
   }, [activePopup, tryShow]);
 
-  if (!activePopup) return null;
+  if (!activePopup || isModalOpen) return null;
 
   return (
-    <div className="fixed bottom-20 sm:bottom-24 left-1/2 -translate-x-1/2 sm:left-auto sm:translate-x-0 sm:right-24 z-[60] w-[calc(100%-2rem)] max-w-sm animate-slide-up">
-      <div className="bg-white rounded-2xl shadow-2xl border border-gray-100 p-5 relative">
+    <div
+      className="fixed z-[55] animate-slide-up
+        left-4 right-[4.75rem] bottom-[5.25rem]
+        sm:left-auto sm:right-24 sm:bottom-24 sm:w-[min(100%,20rem)]
+        md:right-28 md:bottom-28"
+      role="dialog"
+      aria-live="polite"
+    >
+      <div
+        className="relative rounded-2xl p-4 sm:p-5
+          bg-white dark:bg-[#1e293b]
+          border-2 border-slate-200 dark:border-slate-500
+          shadow-[0_16px_48px_rgba(15,23,42,0.28)] dark:shadow-[0_16px_48px_rgba(0,0,0,0.65)]
+          text-slate-900 dark:text-white"
+      >
         <button
           onClick={() => dismiss(activePopup.key)}
-          className="absolute top-3 right-3 p-1 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 transition-colors"
+          className="absolute top-2.5 right-2.5 sm:top-3 sm:right-3 p-1.5 text-gray-500 dark:text-slate-300 hover:text-[#0F172A] dark:hover:text-white rounded-full hover:bg-gray-100 dark:hover:bg-white/10 transition-colors"
           aria-label="Dismiss"
         >
           <X size={18} />
         </button>
-        <p className="text-[#0F172A] font-bold text-base pr-6 mb-4 leading-snug">{activePopup.message}</p>
-        <div className="flex flex-col sm:flex-row gap-2">
+        <p className="text-[#0F172A] dark:text-white font-bold text-sm sm:text-base pr-8 mb-3 sm:mb-4 leading-snug">
+          {activePopup.message}
+        </p>
+        <div className="flex flex-col gap-2">
           <button
             onClick={() => { dismiss(activePopup.key); openChatbot(); }}
-            className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-[#0F172A] text-white rounded-full text-sm font-bold hover:bg-slate-800 transition-colors"
+            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-full text-sm font-bold transition-colors
+              bg-[#0F172A] text-white hover:bg-slate-800
+              dark:bg-white dark:text-[#0F172A] dark:hover:bg-slate-100"
           >
-            <HelpCircle size={16} /> Ask {BOT_NAME}
+            <HelpCircle size={16} className="shrink-0" />
+            Ask {BOT_NAME}
           </button>
           <button
             onClick={() => { dismiss(activePopup.key); openContactForm({ source: 'popup' }); }}
-            className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-[#F97316] text-white rounded-full text-sm font-bold hover:bg-[#EA580C] transition-colors"
+            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-[#F97316] text-white rounded-full text-sm font-bold hover:bg-[#EA580C] transition-colors"
           >
-            <Send size={16} /> Send a Message
+            <Send size={16} className="shrink-0" />
+            Send a Message
           </button>
         </div>
       </div>

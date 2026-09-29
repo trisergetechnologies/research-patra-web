@@ -70,7 +70,7 @@ const Methodology = () => {
                <div className="w-16 h-16 rounded-2xl bg-slate-700/50 flex items-center justify-center border border-slate-600 group-hover:bg-[#F97316] transition-colors duration-300">
     <step.icon className="text-[#F97316] group-hover:text-white" size={32} />
 </div>
-                <span className="text-5xl font-black text-slate-700 group-hover:text-[#F97316]/20 transition-colors">{step.number}</span>
+                <span className="text-5xl font-black text-white/20 group-hover:text-[#F97316]/30 transition-colors">{step.number}</span>
               </div>
               <h3 className="text-2xl font-bold text-white mb-4 group-hover:text-[#F97316] transition-colors">{step.title}</h3>
               <p className="text-gray-400 font-medium leading-relaxed mb-6 flex-grow">{step.text}</p>

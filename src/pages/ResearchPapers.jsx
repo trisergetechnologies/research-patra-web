@@ -7,16 +7,16 @@ const page = getServicePage('research-papers');
 const ManuscriptTracks = () => (
   <section className="py-16 max-w-7xl mx-auto px-6">
     <div className="text-center mb-12">
-      <h2 className="text-3xl font-extrabold text-[#0F172A]">What Type of Manuscript Do You Need?</h2>
+      <h2 className="text-3xl font-extrabold text-body">What Type of Manuscript Do You Need?</h2>
     </div>
     <div className="grid md:grid-cols-2 gap-8">
-      <div className="bg-white p-8 rounded-3xl border border-gray-200 shadow-sm">
+      <div className="bg-surface p-8 rounded-3xl border border-theme shadow-sm">
         <FileText size={40} className="text-[#F97316] mb-4" />
-        <h3 className="text-2xl font-bold text-[#0F172A] mb-3">Empirical Research Paper</h3>
-        <p className="text-gray-600 mb-4 text-sm leading-relaxed">
+        <h3 className="text-2xl font-bold text-body mb-3">Empirical Research Paper</h3>
+        <p className="text-muted mb-4 text-sm leading-relaxed">
           Based on primary data, experiments, or simulations. We help structure the complete scientific narrative.
         </p>
-        <ul className="space-y-2 text-sm font-semibold text-slate-700">
+        <ul className="space-y-2 text-sm font-semibold text-body">
           <li className="flex gap-2"><CheckCircle2 size={16} className="text-[#F97316] shrink-0 mt-0.5" /> Introduction & literature gap</li>
           <li className="flex gap-2"><CheckCircle2 size={16} className="text-[#F97316] shrink-0 mt-0.5" /> Methodology & setup</li>
           <li className="flex gap-2"><CheckCircle2 size={16} className="text-[#F97316] shrink-0 mt-0.5" /> Results, graphs & discussion</li>
@@ -39,11 +39,11 @@ const ManuscriptTracks = () => (
 );
 
 const QualityFeatures = () => (
-  <section className="py-16 bg-gray-50 border-y border-gray-100">
+  <section className="py-16 bg-soft border-y border-theme">
     <div className="max-w-7xl mx-auto px-6">
       <div className="text-center mb-10">
-        <h2 className="text-3xl font-extrabold text-[#0F172A]">Manuscript Quality Standards</h2>
-        <p className="text-gray-500 mt-3 max-w-2xl mx-auto">
+        <h2 className="text-3xl font-extrabold text-body">Manuscript Quality Standards</h2>
+        <p className="text-muted mt-3 max-w-2xl mx-auto">
           We focus on clarity, structure, and formatting so your manuscript meets target journal requirements.
         </p>
       </div>
@@ -53,10 +53,10 @@ const QualityFeatures = () => (
           { icon: CheckCircle2, title: 'Original Writing', text: 'Human-written content with plagiarism review where agreed in scope.' },
           { icon: Globe, title: 'Academic English', text: 'Logical flow, objective tone, and grammatical clarity throughout.' },
         ].map(({ icon: Icon, title, text }) => (
-          <div key={title} className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+          <div key={title} className="bg-surface p-6 rounded-2xl shadow-sm border border-theme">
             <Icon className="text-[#F97316] mb-4" size={28} />
-            <h3 className="font-bold text-[#0F172A] mb-2">{title}</h3>
-            <p className="text-sm text-gray-600 leading-relaxed">{text}</p>
+            <h3 className="font-bold text-body mb-2">{title}</h3>
+            <p className="text-sm text-muted leading-relaxed">{text}</p>
           </div>
         ))}
       </div>

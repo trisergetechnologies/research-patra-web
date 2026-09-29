@@ -8,19 +8,22 @@ import { SITE } from './config/site';
 const ChipPanel = ({ visibleChips, hasMoreChips, showAllChips, setShowAllChips, onChip, onSendMessage, introText }) => (
   <div className="flex-1 flex flex-col p-4 gap-3 overflow-y-auto">
     {introText && (
-      <div className="bg-white border border-gray-100 rounded-xl p-3 shadow-sm">
-        <p className="text-sm text-gray-600 leading-relaxed">{introText}</p>
+      <div className="bg-white dark:bg-[#151c2c] border border-slate-200 dark:border-white/10 rounded-xl p-3 shadow-sm">
+        <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">{introText}</p>
       </div>
     )}
 
-    <p className="text-xs font-bold text-gray-400 uppercase tracking-wider px-1">Popular questions</p>
+    <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider px-1">Popular questions</p>
 
     <div className="flex flex-col gap-2 flex-1">
       {visibleChips.map((chip) => (
         <button
           key={chip}
           onClick={() => onChip(chip)}
-          className="w-full text-left text-sm font-semibold px-4 py-3.5 bg-white border border-orange-100 text-[#0F172A] rounded-xl hover:border-[#F97316] hover:bg-orange-50 transition-colors shadow-sm"
+          className="w-full text-left text-sm font-semibold px-4 py-3.5 rounded-xl transition-colors shadow-sm
+            bg-white border border-slate-200 text-slate-900
+            dark:bg-[#151c2c] dark:border-white/10 dark:text-slate-100
+            hover:border-[#F97316] hover:bg-orange-50 dark:hover:bg-orange-950/40"
         >
           {chip}
         </button>
@@ -29,7 +32,7 @@ const ChipPanel = ({ visibleChips, hasMoreChips, showAllChips, setShowAllChips, 
       {hasMoreChips && (
         <button
           onClick={() => setShowAllChips(!showAllChips)}
-          className="w-full flex items-center justify-center gap-1.5 text-sm font-bold px-4 py-3 text-[#F97316] hover:bg-orange-50 rounded-xl transition-colors"
+          className="w-full flex items-center justify-center gap-1.5 text-sm font-bold px-4 py-3 text-[#F97316] hover:bg-orange-50 dark:hover:bg-badge rounded-xl transition-colors"
         >
           {showAllChips ? (
             <>Show less <ChevronUp size={16} /></>
@@ -41,7 +44,9 @@ const ChipPanel = ({ visibleChips, hasMoreChips, showAllChips, setShowAllChips, 
 
       <button
         onClick={onSendMessage}
-        className="w-full flex items-center justify-center gap-2 text-sm font-bold px-4 py-3.5 bg-[#0F172A] text-white rounded-xl hover:bg-slate-800 transition-colors mt-auto"
+        className="w-full flex items-center justify-center gap-2 text-sm font-bold px-4 py-3.5 rounded-xl transition-colors mt-auto
+          bg-[#0F172A] text-white hover:bg-slate-800
+          dark:bg-white dark:text-[#0F172A] dark:hover:bg-slate-100"
       >
         <MessageSquare size={16} /> Send a message
       </button>
@@ -148,13 +153,22 @@ const Chatbot = () => {
   return (
     <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 flex flex-col items-end gap-2">
       {showTooltip && !isOpen && (
-        <div className="bg-white text-[#0F172A] text-sm font-medium px-4 py-2.5 rounded-xl shadow-lg border border-gray-100 max-w-[220px] text-right">
+        <div className="text-slate-900 dark:text-slate-100 text-sm font-medium px-4 py-2.5 rounded-xl shadow-lg max-w-[min(220px,calc(100vw-5rem))] text-right
+          bg-white dark:bg-[#151c2c] border border-slate-200 dark:border-white/10">
           Need help with your research? Ask {BOT_NAME}
         </div>
       )}
 
       {isOpen && (
-        <div className="fixed inset-x-0 bottom-0 sm:static sm:inset-auto bg-white w-full sm:w-[340px] h-[75vh] sm:h-[480px] rounded-t-2xl sm:rounded-2xl shadow-2xl flex flex-col border border-gray-200 overflow-hidden">
+        <div
+          className="fixed inset-x-0 bottom-0 sm:static sm:inset-auto
+            w-full sm:w-[min(100vw-2rem,340px)]
+            h-[min(75vh,32rem)] sm:h-[480px]
+            max-h-[calc(100dvh-1rem)]
+            rounded-t-2xl sm:rounded-2xl shadow-2xl flex flex-col overflow-hidden
+            border border-slate-200 dark:border-white/10
+            bg-white dark:bg-[#151c2c] dark:shadow-black/50 text-slate-900 dark:text-slate-100"
+        >
           <div className="bg-[#F97316] text-white px-4 py-3 flex items-center justify-between shrink-0">
             <span className="font-bold text-lg">{BOT_NAME}</span>
             <button onClick={closeChatbot} className="p-1 hover:bg-white/20 rounded-full transition-colors" aria-label="Close chat">
@@ -162,7 +176,7 @@ const Chatbot = () => {
             </button>
           </div>
 
-          <div className="flex-1 flex flex-col min-h-0 bg-gray-50">
+          <div className="flex-1 flex flex-col min-h-0 bg-slate-100 dark:bg-[#0B1220]">
             {showChipPanel ? (
               <ChipPanel
                 visibleChips={visibleChips}
@@ -179,7 +193,9 @@ const Chatbot = () => {
                   <div key={i} className={`flex ${msg.isBot ? 'justify-start' : 'justify-end'}`}>
                     <div
                       className={`p-3 rounded-xl max-w-[85%] text-sm leading-relaxed ${
-                        msg.isBot ? 'bg-white text-gray-800 border border-gray-100 shadow-sm' : 'bg-[#F97316] text-white'
+                        msg.isBot
+                          ? 'bg-white dark:bg-[#151c2c] text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-white/10 shadow-sm'
+                          : 'bg-[#F97316] text-white'
                       }`}
                     >
                       {msg.text}
@@ -190,7 +206,7 @@ const Chatbot = () => {
                             <button
                               key={option}
                               onClick={() => handleChip(option)}
-                              className="text-left text-xs font-semibold px-3 py-2.5 bg-orange-50 border border-orange-100 text-[#0F172A] rounded-lg hover:border-[#F97316] hover:bg-orange-100 transition-colors"
+                              className="text-left text-xs font-semibold px-3 py-2.5 bg-orange-50 dark:bg-orange-950/40 border border-orange-200 dark:border-orange-900/40 text-slate-900 dark:text-slate-100 rounded-lg hover:border-[#F97316] hover:bg-orange-100 dark:hover:bg-orange-950/50 transition-colors"
                             >
                               {option}
                             </button>
@@ -202,13 +218,15 @@ const Chatbot = () => {
                         <div className="mt-3 flex flex-col gap-2">
                           <button
                             onClick={openTopics}
-                            className="flex items-center justify-center gap-1.5 text-xs font-bold px-3 py-2.5 bg-[#0F172A] text-white rounded-lg hover:bg-slate-800 transition-colors"
+                            className="flex items-center justify-center gap-1.5 text-xs font-bold px-3 py-2.5 rounded-lg transition-colors
+                              bg-[#0F172A] text-white hover:bg-slate-800
+                              dark:bg-white dark:text-[#0F172A] dark:hover:bg-slate-100"
                           >
                             <List size={14} /> Browse common questions
                           </button>
                           <button
                             onClick={openMessageForm}
-                            className="flex items-center justify-center gap-1.5 text-xs font-bold px-3 py-2.5 border border-orange-200 text-[#F97316] rounded-lg hover:bg-orange-50 transition-colors"
+                            className="flex items-center justify-center gap-1.5 text-xs font-bold px-3 py-2.5 border border-orange-200 dark:border-orange-800 text-[#F97316] rounded-lg hover:bg-orange-50 dark:hover:bg-badge transition-colors"
                           >
                             <MessageSquare size={14} /> Send a message
                           </button>
@@ -222,11 +240,11 @@ const Chatbot = () => {
             )}
           </div>
 
-          <div className="p-3 bg-white border-t shrink-0 space-y-2">
+          <div className="p-3 shrink-0 space-y-2 border-t border-slate-200 dark:border-white/10 bg-white dark:bg-[#151c2c]">
             {!showChipPanel && (
               <button
                 onClick={openTopics}
-                className="w-full flex items-center justify-center gap-1.5 text-xs font-bold px-3 py-2 text-[#F97316] border border-orange-100 rounded-lg hover:bg-orange-50 transition-colors"
+                className="w-full flex items-center justify-center gap-1.5 text-xs font-bold px-3 py-2 text-[#F97316] border border-orange-200 dark:border-orange-900/40 rounded-lg hover:bg-orange-50 dark:hover:bg-badge transition-colors"
               >
                 <List size={14} /> Browse common questions
               </button>
@@ -238,7 +256,8 @@ const Chatbot = () => {
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleSend()}
                 placeholder="Type your question..."
-                className="flex-1 p-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#F97316] text-sm"
+                className="flex-1 p-2.5 border border-slate-300 dark:border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#F97316] text-sm
+                  bg-slate-50 dark:bg-[#0B1220] text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500"
               />
               <button onClick={handleSend} className="bg-[#F97316] text-white p-2.5 rounded-xl hover:bg-[#EA580C] transition-colors shrink-0" aria-label="Send">
                 <Send size={18} />

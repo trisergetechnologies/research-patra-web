@@ -93,16 +93,16 @@ const serviceList = [
 
 const Services = () => {
   return (
-    <section id="services" className="bg-gray-50 py-12 md:py-20 px-6">
+    <section id="services" className="bg-soft py-12 md:py-20 px-6">
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-10 md:mb-14">
-          <span className="text-[#F97316] text-xs font-bold uppercase tracking-widest bg-orange-50 px-3 py-1.5 rounded-full inline-block mb-3">
+          <span className="text-orange-700 dark:text-[#F97316] text-xs font-bold uppercase tracking-widest bg-orange-50 dark:bg-orange-500/15 px-3 py-1.5 rounded-full inline-block mb-3">
             What We Offer
           </span>
-          <h2 className="text-3xl md:text-4xl font-extrabold text-[#0F172A] mb-3 tracking-tight">
+          <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white mb-3 tracking-tight">
             Comprehensive Academic Writing & Research Solutions
           </h2>
-          <p className="text-gray-500 max-w-2xl mx-auto text-base leading-relaxed">
+          <p className="text-slate-600 dark:text-slate-300 max-w-2xl mx-auto text-base leading-relaxed">
             From your first research idea to a polished, submission-ready manuscript. Every stage of your academic journey, covered by subject-matter experts.
           </p>
         </div>
@@ -114,16 +114,16 @@ const Services = () => {
               <Link
                 key={service.link}
                 to={service.link}
-                className="group bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md hover:border-orange-200 transition duration-300 flex flex-col gap-4 group h-full"
+                className="group bg-white dark:bg-[#151c2c] p-6 rounded-2xl border border-slate-200 dark:border-white/10 shadow-sm hover:shadow-md hover:border-orange-200 dark:hover:border-orange-400/40 transition duration-300 flex flex-col gap-4 h-full"
               >
-                <div className="p-3 bg-orange-50 rounded-xl w-fit group-hover:bg-orange-100 transition-colors">
-                  <Icon className="h-6 w-6 text-[#F97316]" group-hover:text-white/>
+                <div className="p-3 bg-orange-50 dark:bg-orange-500/15 rounded-xl w-fit group-hover:bg-orange-100 dark:group-hover:bg-orange-950/40 transition-colors">
+                  <Icon className="h-6 w-6 text-[#F97316]" />
                 </div>
                 <div className="space-y-2 flex-grow">
-                  <h3 className="text-lg font-bold text-gray-950 tracking-tight group-hover:text-[#F97316] transition-colors">
+                  <h3 className="text-lg font-bold text-slate-900 dark:text-white tracking-tight group-hover:text-[#F97316] transition-colors">
                     {service.title}
                   </h3>
-                  <p className="text-gray-600 text-sm leading-relaxed">{service.description}</p>
+                  <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed">{service.description}</p>
                 </div>
                 <span className="inline-flex items-center gap-1 text-[#F97316] font-bold text-sm group-hover:gap-2 transition-all">
                   Explore <ArrowRight size={16} />
@@ -136,7 +136,7 @@ const Services = () => {
         <div className="text-center mt-10">
           <Link
             to="/services"
-            className="inline-flex items-center gap-2 text-[#0F172A] font-bold text-sm hover:text-[#F97316] transition-colors"
+            className="inline-flex items-center gap-2 text-slate-900 dark:text-white font-bold text-sm hover:text-[#F97316] transition-colors"
           >
             View full services overview <ArrowRight size={16} />
           </Link>

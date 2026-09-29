@@ -5,8 +5,8 @@ const ServiceContactLink = ({ serviceName, message, source, linkText = 'Send us 
   const { openContactForm } = useContactForm();
 
   return (
-    <section className="py-12 px-6 bg-gray-50 border-t border-gray-100">
-      <p className="text-gray-500 text-center text-base max-w-xl mx-auto">
+    <section className="py-12 px-6 bg-soft border-t border-theme">
+      <p className="text-muted text-center text-base max-w-xl mx-auto">
         Need help with {serviceName}?{' '}
         <button
           type="button"

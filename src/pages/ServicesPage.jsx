@@ -84,7 +84,7 @@ const ServicesPage = () => {
   const { openContactForm } = useContactForm();
 
   return (
-    <div className="bg-white font-sans selection:bg-[#F97316] selection:text-white overflow-x-hidden">
+    <div className="bg-surface font-sans selection:bg-[#F97316] selection:text-white overflow-x-hidden">
       <PageMeta title={HUB_PAGES.services.metaTitle} description={HUB_PAGES.services.metaDescription} path={HUB_PAGES.services.path} />
       
       {/* HEADER */}
@@ -93,11 +93,11 @@ const ServicesPage = () => {
         <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-[#F97316] rounded-full blur-[150px] opacity-15 translate-x-1/4 pointer-events-none"></div>
 
         <div className="max-w-7xl mx-auto px-4 md:px-6 relative z-10 text-center">
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-[#0F172A] mb-4 md:mb-6 tracking-tight leading-tight">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-body mb-4 md:mb-6 tracking-tight leading-tight">
             Comprehensive <br className="hidden sm:block" />
             <span className="text-[#F97316]">Academic Services</span>
           </h1>
-          <p className="text-base sm:text-lg md:text-xl text-gray-500 max-w-3xl mx-auto font-medium leading-relaxed px-2">
+          <p className="text-base sm:text-lg md:text-xl text-muted max-w-3xl mx-auto font-medium leading-relaxed px-2">
             From dissertation planning to detailed data analysis, we deliver academic solutions tailored to your unique requirements with ethical guidance.
           </p>
         </div>
@@ -112,17 +112,17 @@ const ServicesPage = () => {
             {fullServices.map((service, index) => (
               <div 
                 key={index}
-                className="bg-white p-6 md:p-10 rounded-[2rem] border border-gray-200 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:border-black hover:shadow-[0_20px_40px_rgb(0,0,0,0.08)] group transition-all flex flex-col"
+                className="bg-surface p-6 md:p-10 rounded-[2rem] border border-theme shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:border-black hover:shadow-[0_20px_40px_rgb(0,0,0,0.08)] group transition-all flex flex-col"
               >
                 <div className="w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-[#F97316] flex items-center justify-center mb-6 shadow-sm group-hover:scale-110 transition-transform duration-300 shrink-0">
                   {service.icon}
                 </div>
                 
-                <h3 className="text-xl md:text-2xl font-bold text-[#0F172A] mb-3 tracking-tight">
+                <h3 className="text-xl md:text-2xl font-bold text-body mb-3 tracking-tight">
                   {service.title}
                 </h3>
                 
-                <p className="text-gray-500 text-sm md:text-base leading-relaxed flex-grow">
+                <p className="text-muted text-sm md:text-base leading-relaxed flex-grow">
                   {service.desc}
                 </p>
 
@@ -137,7 +137,7 @@ const ServicesPage = () => {
       </section>
 
       <section className="py-16 max-w-5xl mx-auto px-6">
-        <h2 className="text-2xl font-extrabold text-[#0F172A] mb-8 text-center">Explore More</h2>
+        <h2 className="text-2xl font-extrabold text-body mb-8 text-center">Explore More</h2>
         <div className="grid sm:grid-cols-3 gap-4">
           {[
             { label: 'How We Work', to: '/how-we-work', desc: 'Our engagement process' },
@@ -147,48 +147,48 @@ const ServicesPage = () => {
             <Link
               key={hub.to}
               to={hub.to}
-              className="p-5 rounded-2xl border border-gray-100 bg-slate-50 hover:border-[#F97316] transition-colors"
+              className="p-5 rounded-2xl border border-theme bg-soft hover:border-[#F97316] transition-colors"
             >
-              <h3 className="font-bold text-[#0F172A] mb-1">{hub.label}</h3>
-              <p className="text-sm text-gray-500">{hub.desc}</p>
+              <h3 className="font-bold text-body mb-1">{hub.label}</h3>
+              <p className="text-sm text-muted">{hub.desc}</p>
             </Link>
           ))}
         </div>
       </section>
 
       {/* LEGACY SECTION */}
-      <section className="py-16 md:py-24 bg-[#F8FAFC] border-y border-gray-100">
+      <section className="py-16 md:py-24 bg-soft border-y border-theme">
         <div className="max-w-7xl mx-auto px-4 md:px-6 grid lg:grid-cols-2 gap-12 md:gap-16 items-center">
           
-          <div className="relative p-8 md:p-12 bg-white rounded-[2rem] md:rounded-[3rem] border border-gray-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] text-center transform hover:scale-[1.02] transition-transform duration-500">
+          <div className="relative p-8 md:p-12 bg-surface rounded-[2rem] md:rounded-[3rem] border border-theme shadow-[0_8px_30px_rgb(0,0,0,0.04)] text-center transform hover:scale-[1.02] transition-transform duration-500">
             <div className="absolute -top-10 -right-10 w-32 h-32 md:w-40 md:h-40 bg-[#F97316] rounded-full blur-[60px] opacity-20 pointer-events-none"></div>
-            <h3 className="text-6xl md:text-8xl font-black text-[#0F172A] mb-2 tracking-tighter">100<span className="text-[#F97316]">+</span></h3>
-            <p className="text-lg md:text-xl font-bold text-gray-500 uppercase tracking-widest">Combined Expert Years</p>
+            <h3 className="text-6xl md:text-8xl font-black text-body mb-2 tracking-tighter">100<span className="text-[#F97316]">+</span></h3>
+            <p className="text-lg md:text-xl font-bold text-muted uppercase tracking-widest">Combined Expert Years</p>
             <div className="w-16 md:w-20 h-1.5 bg-[#F97316] mx-auto mt-6 md:mt-8 rounded-full"></div>
-            <p className="mt-6 md:mt-8 text-gray-500 font-medium text-sm md:text-base">The total years of academic experience across our team of writers and researchers, added together.</p>
+            <p className="mt-6 md:mt-8 text-muted font-medium text-sm md:text-base">The total years of academic experience across our team of writers and researchers, added together.</p>
           </div>
 
           <div>
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-orange-50 text-[#EA580C] font-bold rounded-full text-xs md:text-sm mb-6 border border-orange-100">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-badge text-orange-700 dark:text-[#EA580C] font-bold rounded-full text-xs md:text-sm mb-6 border border-orange-200 dark:border-orange-800/40">
               <CheckCircle2 size={16} /> OUR LEGACY
             </div>
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-[#0F172A] mb-4 md:mb-6 leading-tight tracking-tight">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-body mb-4 md:mb-6 leading-tight tracking-tight">
               A Foundation of <br className="hidden sm:block" /> Academic Integrity
             </h2>
-            <p className="text-gray-500 text-base md:text-lg mb-6 md:mb-8 leading-relaxed font-medium">
+            <p className="text-muted text-base md:text-lg mb-6 md:mb-8 leading-relaxed font-medium">
               We believe academic success should not feel overwhelming. That is why we combine expertise with personalized guidance, ensuring every project is handled with care.
             </p>
             <ul className="space-y-4 md:space-y-5">
-              <li className="flex items-center gap-3 md:gap-4 text-[#0F172A] font-bold text-base md:text-lg">
-                <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-orange-50 flex items-center justify-center text-[#F97316] shrink-0"><CheckCircle2 size={18} /></div>
+              <li className="flex items-center gap-3 md:gap-4 text-body font-bold text-base md:text-lg">
+                <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-badge flex items-center justify-center text-[#F97316] shrink-0"><CheckCircle2 size={18} /></div>
                 Superior Quality
               </li>
-              <li className="flex items-center gap-3 md:gap-4 text-[#0F172A] font-bold text-base md:text-lg">
-                <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-orange-50 flex items-center justify-center text-[#F97316] shrink-0"><CheckCircle2 size={18} /></div>
+              <li className="flex items-center gap-3 md:gap-4 text-body font-bold text-base md:text-lg">
+                <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-badge flex items-center justify-center text-[#F97316] shrink-0"><CheckCircle2 size={18} /></div>
                 Transparent Practices
               </li>
-              <li className="flex items-center gap-3 md:gap-4 text-[#0F172A] font-bold text-base md:text-lg">
-                <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-orange-50 flex items-center justify-center text-[#F97316] shrink-0"><CheckCircle2 size={18} /></div>
+              <li className="flex items-center gap-3 md:gap-4 text-body font-bold text-base md:text-lg">
+                <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-badge flex items-center justify-center text-[#F97316] shrink-0"><CheckCircle2 size={18} /></div>
                 Personalized Solutions
               </li>
             </ul>
@@ -196,8 +196,8 @@ const ServicesPage = () => {
         </div>
       </section>
 
-      <section className="py-12 px-6 bg-gray-50 border-t border-gray-100 text-center">
-        <p className="text-gray-500 max-w-xl mx-auto">
+      <section className="py-12 px-6 bg-soft border-t border-theme text-center">
+        <p className="text-muted max-w-xl mx-auto">
           Not sure which service fits your project?{' '}
           <button
             type="button"

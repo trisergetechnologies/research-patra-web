@@ -49,7 +49,7 @@ const sections = [
 
 export default function PrivacyPolicy() {
   return (
-    <div className="bg-white overflow-x-hidden">
+    <div className="bg-surface overflow-x-hidden">
       <PageMeta title={meta.metaTitle} description={meta.metaDescription} path={meta.path} />
       <section className="py-16 md:py-20 bg-[#0F172A] text-center px-6">
         <h1 className="text-4xl md:text-5xl font-black text-white mb-3">Privacy Policy</h1>
@@ -58,8 +58,8 @@ export default function PrivacyPolicy() {
       <article className="max-w-3xl mx-auto px-6 py-14 space-y-10">
         {sections.map(({ title, body }) => (
           <section key={title}>
-            <h2 className="text-xl font-bold text-[#0F172A] mb-3">{title}</h2>
-            <p className="text-gray-600 leading-relaxed text-sm md:text-base">{body}</p>
+            <h2 className="text-xl font-bold text-body mb-3">{title}</h2>
+            <p className="text-muted leading-relaxed text-sm md:text-base">{body}</p>
           </section>
         ))}
       </article>

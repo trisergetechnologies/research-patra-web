@@ -5,10 +5,10 @@ import ServicePageLayout from '../components/service/ServicePageLayout';
 const page = getServicePage('topic-selection');
 
 const TopicProcess = () => (
-  <section className="py-16 bg-slate-50 border-y border-gray-100">
+  <section className="py-16 bg-soft border-y border-theme">
     <div className="max-w-7xl mx-auto px-6">
       <div className="text-center mb-12">
-        <h2 className="text-3xl font-extrabold text-[#0F172A]">Our 6-Step Topic Selection Process</h2>
+        <h2 className="text-3xl font-extrabold text-body">Our 6-Step Topic Selection Process</h2>
       </div>
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
         {[
@@ -19,11 +19,11 @@ const TopicProcess = () => (
           { icon: Award, title: 'Suitability Check', desc: 'Validate topics against university guidelines.' },
           { icon: FileCheck, title: 'Finalize 2–3 Topics', desc: 'Narrow to the best options for your proposal.' },
         ].map(({ icon: Icon, title, desc }) => (
-        <div key={title} className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm !hover:bg-white !hover:border-gray-100 !hover:shadow-sm !transition-none"> 
+        <div key={title} className="bg-surface p-6 rounded-2xl border border-theme shadow-sm !hover:bg-surface !hover:border-theme !hover:shadow-sm !transition-none"> 
   {/* The !opacity-100 and !block ensure it stays visible */}
   <Icon className="text-[#F97316] group-hover:text-white mb-4 transition-colors duration-300" size={28} />
-  <h3 className="font-bold text-[#0F12A] mb-2">{title}</h3>
-  <p className="text-sm text-gray-600 leading-relaxed">{desc}</p>
+  <h3 className="font-bold text-body mb-2">{title}</h3>
+  <p className="text-sm text-muted leading-relaxed">{desc}</p>
 </div>
         ))}
       </div>
@@ -40,8 +40,8 @@ const TopicPillars = () => (
     ].map(({ icon: Icon, title, text }) => (
       <div key={title} className="text-center p-4">
         <Icon className="text-[#F97316] mx-auto mb-3" size={32} />
-        <h3 className="font-bold text-[#0F172A] mb-2">{title}</h3>
-        <p className="text-sm text-gray-600 leading-relaxed">{text}</p>
+        <h3 className="font-bold text-body mb-2">{title}</h3>
+        <p className="text-sm text-muted leading-relaxed">{text}</p>
       </div>
     ))}
   </section>

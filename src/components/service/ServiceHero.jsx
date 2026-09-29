@@ -20,15 +20,15 @@ export default function ServiceHero({ badge, title, subtitle, dark = true }) {
   }
 
   return (
-    <section className="relative py-20 bg-slate-50 border-b border-gray-200 text-center">
+    <section className="relative py-20 bg-soft border-b border-theme text-center">
       <div className="max-w-4xl mx-auto px-6">
         {badge && (
-          <span className="inline-block text-xs font-bold uppercase tracking-widest text-[#F97316] bg-orange-50 px-3 py-1.5 rounded-full mb-4">
+          <span className="inline-block text-xs font-bold uppercase tracking-widest text-orange-700 dark:text-[#F97316] bg-badge px-3 py-1.5 rounded-full mb-4">
             {badge}
           </span>
         )}
-        <h1 className="text-4xl md:text-5xl font-black text-[#0F172A] mb-6 tracking-tight">{title}</h1>
-        <p className="text-lg text-gray-600 font-medium leading-relaxed max-w-2xl mx-auto">{subtitle}</p>
+        <h1 className="text-4xl md:text-5xl font-black text-body mb-6 tracking-tight">{title}</h1>
+        <p className="text-lg text-muted font-medium leading-relaxed max-w-2xl mx-auto">{subtitle}</p>
       </div>
     </section>
   );

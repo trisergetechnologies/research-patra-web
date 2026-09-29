@@ -38,7 +38,7 @@ const LogoSlider = () => {
   const trackLogos = [...publisherLogos, ...publisherLogos];
 
   return (
-    <section className="py-16 md:py-20 bg-[#F8FAFC] relative z-20 border-y border-gray-100 overflow-hidden">
+    <section className="py-16 md:py-20 bg-soft relative z-20 border-y border-theme overflow-hidden">
       <style>
         {`
           @keyframes infinite-slide {
@@ -52,24 +52,24 @@ const LogoSlider = () => {
       </style>
 
       <div className="max-w-7xl mx-auto px-6 mb-10 md:mb-12 text-center">
-        <h2 className="text-3xl md:text-4xl font-extrabold text-[#0F172A] tracking-tight">
+        <h2 className="text-3xl md:text-4xl font-extrabold text-body tracking-tight">
           Formatted for Leading Academic Publishers
         </h2>
-        <p className="text-gray-500 max-w-2xl mx-auto mt-4 text-sm md:text-base leading-relaxed">
+        <p className="text-muted max-w-2xl mx-auto mt-4 text-sm md:text-base leading-relaxed">
           Manuscripts prepared for Scopus, SCI, and leading publishers including Elsevier, Springer, Wiley, and Nature.
         </p>
         <div className="w-20 h-1.5 bg-[#F97316] mx-auto mt-6 rounded-full shadow-sm" />
       </div>
 
       <div className="relative w-full overflow-hidden">
-        <div className="absolute top-0 left-0 w-24 md:w-40 h-full bg-gradient-to-r from-[#F8FAFC] to-transparent z-10 pointer-events-none" />
-        <div className="absolute top-0 right-0 w-24 md:w-40 h-full bg-gradient-to-l from-[#F8FAFC] to-transparent z-10 pointer-events-none" />
+        <div className="absolute top-0 left-0 w-24 md:w-40 h-full bg-gradient-to-r from-soft to-transparent z-10 pointer-events-none" />
+        <div className="absolute top-0 right-0 w-24 md:w-40 h-full bg-gradient-to-l from-soft to-transparent z-10 pointer-events-none" />
 
         <div className="flex w-max animate-infinite-slide hover:[animation-play-state:paused] py-2">
           {trackLogos.map((logo, index) => (
             <div
               key={`${logo.alt}-${index}`}
-              className="flex-shrink-0 w-60 md:w-72 mx-3 md:mx-4 bg-white border border-gray-100 h-36 md:h-40 flex flex-col items-center justify-center gap-2.5 rounded-2xl shadow-[0_4px_15px_rgb(0,0,0,0.05)] px-4 md:px-5 py-3"
+              className="flex-shrink-0 w-60 md:w-72 mx-3 md:mx-4 bg-white border border-theme h-36 md:h-40 flex flex-col items-center justify-center gap-2.5 rounded-2xl shadow-[0_4px_15px_rgb(0,0,0,0.05)] px-4 md:px-5 py-3"
             >
               <img
                 src={logo.src}

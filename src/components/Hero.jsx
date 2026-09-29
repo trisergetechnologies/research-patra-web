@@ -14,17 +14,17 @@ const Hero = () => {
   const { openContactForm } = useContactForm();
 
   return (
-    <section id="home" className="relative pt-12 pb-12 md:pt-16 md:pb-16 overflow-hidden bg-white">
+    <section id="home" className="relative pt-12 pb-12 md:pt-16 md:pb-16 overflow-hidden bg-surface">
       <div className="absolute -top-32 -left-32 w-[600px] h-[600px] bg-[#EA580C] rounded-full blur-[140px] opacity-20 pointer-events-none"></div>
       <div className="absolute top-0 right-0 w-[700px] h-[700px] bg-[#F97316] rounded-full blur-[150px] opacity-15 translate-x-1/4 pointer-events-none"></div>
 
       <div className="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-12 items-center relative z-10">
         <div className="flex flex-col justify-center text-center lg:text-left">
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-[#0F172A] leading-[1.15] mb-4 tracking-tight">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-body leading-[1.15] mb-4 tracking-tight">
             Expert <span className="text-[#F97316]">Research Writing Support</span> for Your Academic Journey
           </h1>
 
-          <p className="text-base sm:text-lg text-gray-600 mb-6 max-w-xl mx-auto lg:mx-0 leading-relaxed font-medium">
+          <p className="text-base sm:text-lg text-muted mb-6 max-w-xl mx-auto lg:mx-0 leading-relaxed font-medium">
             From topic selection to thesis chapters and journal-ready manuscripts. Our PhD experts help you plan, write, and refine your work to meet your university and formatting requirements.
           </p>
 
@@ -35,7 +35,7 @@ const Hero = () => {
             >
               Talk to Our Experts
             </button>
-            <p className="text-sm text-gray-500 font-medium">
+            <p className="text-sm text-muted font-medium">
               Or call us at{' '}
               <a href={`tel:${SITE.phone}`} className="text-[#F97316] font-bold hover:underline">
                 {SITE.phoneDisplay}
@@ -43,7 +43,7 @@ const Hero = () => {
             </p>
           </div>
 
-          <div className="flex flex-wrap justify-center lg:justify-start items-center gap-6 text-sm font-semibold text-gray-500">
+          <div className="flex flex-wrap justify-center lg:justify-start items-center gap-6 text-sm font-semibold text-muted">
             <span className="flex items-center gap-2">
               <CheckCircle2 size={18} className="text-[#F97316]" /> Ethical Solutions
             </span>

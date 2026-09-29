@@ -19,7 +19,7 @@ const RejectionSection = () => {
 
   return (
     <section className="max-w-6xl mx-auto p-4 my-12">
-      <div className="bg-[#F8FAFC] rounded-3xl p-8 md:p-12 shadow-sm border border-gray-50">
+      <div className="bg-soft rounded-3xl p-8 md:p-12 shadow-sm border border-theme">
         <div className="grid md:grid-cols-2 gap-10 items-center">
           
           {/* Left Column: Text */}
@@ -29,17 +29,17 @@ const RejectionSection = () => {
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
           >
-            <h2 className="text-3xl md:text-4xl font-bold text-[#111827] mb-6 leading-tight">
+            <h2 className="text-3xl md:text-4xl font-bold text-body mb-6 leading-tight">
               Why Do Most Research Proposals Get Rejected?
             </h2>
             
-            <p className="text-[#4B5563] mb-6 leading-relaxed">
+            <p className="text-muted mb-6 leading-relaxed">
               A research proposal isn't just an essay; it is a rigid academic blueprint. 
               University committees reject proposals that lack a clear problem statement, 
               feature outdated literature, or propose an unrealistic methodology.
             </p>
             
-            <p className="font-bold text-[#1F2937] leading-relaxed">
+            <p className="font-bold text-body leading-relaxed">
               At Research Patra, we map your synopsis exactly to your university's 
               guidelines, ensuring every technical requirement is met flawlessly.
             </p>
@@ -54,23 +54,23 @@ const RejectionSection = () => {
             className="flex flex-col gap-4"
           >
             {/* Red X Card 1 */}
-            <motion.div variants={itemVariants} className="bg-white p-5 rounded-2xl flex items-center gap-4 shadow-sm border border-gray-100">
-              <div className="bg-red-50 text-red-400 w-8 h-8 rounded-full flex items-center justify-center font-bold">
+            <motion.div variants={itemVariants} className="bg-surface p-5 rounded-2xl flex items-center gap-4 shadow-sm border border-theme">
+              <div className="bg-red-50 dark:bg-red-950/40 text-red-400 w-8 h-8 rounded-full flex items-center justify-center font-bold">
                 <X size={16} strokeWidth={3} />
               </div>
-              <span className="font-semibold text-[#1F2937]">Vague Research Objectives</span>
+              <span className="font-semibold text-body">Vague Research Objectives</span>
             </motion.div>
 
             {/* Red X Card 2 */}
-            <motion.div variants={itemVariants} className="bg-white p-5 rounded-2xl flex items-center gap-4 shadow-sm border border-gray-100">
-              <div className="bg-red-50 text-red-400 w-8 h-8 rounded-full flex items-center justify-center font-bold">
+            <motion.div variants={itemVariants} className="bg-surface p-5 rounded-2xl flex items-center gap-4 shadow-sm border border-theme">
+              <div className="bg-red-50 dark:bg-red-950/40 text-red-400 w-8 h-8 rounded-full flex items-center justify-center font-bold">
                 <X size={16} strokeWidth={3} />
               </div>
-              <span className="font-semibold text-[#1F2937]">Flawed Research Methodology</span>
+              <span className="font-semibold text-body">Flawed Research Methodology</span>
             </motion.div>
 
             {/* Orange Success Card */}
-            <motion.div variants={itemVariants} className="bg-[#F97316] p-5 rounded-2xl flex items-center gap-4 shadow-md shadow-orange-200 mt-2">
+            <motion.div variants={itemVariants} className="bg-[#F97316] p-5 rounded-2xl flex items-center gap-4 shadow-md shadow-orange-200 dark:shadow-orange-950/40 mt-2">
               <div className="text-white">
                 <CheckCircle size={24} strokeWidth={2.5} />
               </div>
