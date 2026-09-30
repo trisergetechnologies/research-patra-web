@@ -12,11 +12,15 @@ const emptyFields = {
   requirement: '',
 };
 
+const SUBMITTED_URL = '/start?submitted=1';
+
 export default function StartIntakeForm({ source = 'ads-start', onSuccess }) {
   const [fields, setFields] = useState(emptyFields);
   const [otherChecked, setOtherChecked] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [success, setSuccess] = useState(false);
+  const [success] = useState(
+    () => new URLSearchParams(window.location.search).get('submitted') === '1',
+  );
   const [error, setError] = useState('');
 
   const inputClass =
@@ -62,10 +66,9 @@ export default function StartIntakeForm({ source = 'ads-start', onSuccess }) {
     setSubmitting(false);
 
     if (result.success) {
-      setSuccess(true);
-      setFields(emptyFields);
-      setOtherChecked(false);
       onSuccess?.();
+      window.location.assign(SUBMITTED_URL);
+      return;
     } else {
       setError(result.error || 'Something went wrong. Please try again.');
     }

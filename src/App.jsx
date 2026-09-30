@@ -1,6 +1,6 @@
 import React from 'react';
 import Chatbot from './Chatbot';
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ContactFormProvider } from './context/ContactFormContext';
 import { ChatbotProvider } from './context/ChatbotContext';
 import { ThemeProvider } from './context/ThemeContext';
@@ -34,20 +34,11 @@ import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsAndConditions from './pages/TermsAndConditions';
 import BibliometricAnalysis from './pages/BibliometricAnalysis';
 import PatentSupport from './pages/PatentSupport';
-import Start from './pages/Start';
+// Ads landing is public/start.html, served at /start so Google can see a real <form>.
+// Re-enable by importing ./pages/Start and routing /start to it.
+// import Start from './pages/Start';
 
 function AppLayout() {
-  const { pathname } = useLocation();
-  const isAdLanding = pathname === '/start';
-
-  if (isAdLanding) {
-    return (
-      <Routes>
-        <Route path="/start" element={<Start />} />
-      </Routes>
-    );
-  }
-
   return (
     <div className="min-h-screen w-full overflow-x-hidden bg-page font-sans text-body flex flex-col">
       <Navbar />
