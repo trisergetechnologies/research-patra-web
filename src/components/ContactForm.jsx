@@ -31,6 +31,9 @@ const ContactForm = ({ source = 'website', initialMessage = '', variant = 'foote
       setSuccess(true);
       setFields(emptyFields);
       onSuccess?.();
+      window.gtag?.('event', 'conversion', {
+        send_to: 'AW-18407288038/0nAECPrP2oodEObZo8lE',
+      });
     } else {
       setError(result.error || 'Something went wrong. Please try again.');
     }

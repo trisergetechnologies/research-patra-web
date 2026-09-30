@@ -30,6 +30,7 @@
       gtag('js', new Date());
 
       gtag('config', 'G-QTV3JJN9GT');
+      gtag('config', 'AW-18407288038');
     </script>
     <style>
       body { font-family: Outfit, sans-serif; }
@@ -125,7 +126,7 @@
                 <p class="text-sm mt-2 text-slate-500 dark:text-slate-300">We usually reply within a few hours.</p>
               </div>
 
-              <form id="inquiry-form" method="post" action="/start?submitted=1" class="space-y-4">
+              <form id="inquiry-form" method="post" action="#" class="space-y-4">
                 <div class="grid sm:grid-cols-2 gap-4">
                   <div>
                     <label for="start-name" class="text-sm font-semibold mb-1.5 block">Name <span class="text-[#F97316]">*</span></label>
@@ -218,11 +219,6 @@
       var errorBox = document.getElementById('form-error');
       var submitBtn = document.getElementById('submit-btn');
 
-      if (new URLSearchParams(location.search).get('submitted') === '1') {
-        form.classList.add('hidden');
-        thanks.classList.remove('hidden');
-      }
-
       var GOOGLE_ACTION = 'https://docs.google.com/forms/d/e/1FAIpQLSf8fG6-Rf7awOTcvxwEe4_BGI7TFDjMPzcCSy8RiL2ba3G-JQ/formResponse';
       var ENTRIES = {
         name: 'entry.2005620554',
@@ -285,6 +281,7 @@
       function notifyFormspree(payload, helpList) {
         fetch('https://formspree.io/f/xlgydrpz', {
           method: 'POST',
+          keepalive: true,
           headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
           body: JSON.stringify({
             name: payload.name,
@@ -334,7 +331,12 @@
 
         submitToSheet(payload).then(function () {
           notifyFormspree(payload, helpList.join(', '));
-          window.location.assign('/start?submitted=1');
+          form.classList.add('hidden');
+          thanks.classList.remove('hidden');
+          thanks.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          gtag('event', 'conversion', {
+            send_to: 'AW-18407288038/0nAECPrP2oodEObZo8lE'
+          });
         }).catch(function () {
           submitBtn.disabled = false;
           submitBtn.textContent = 'Submit request';
