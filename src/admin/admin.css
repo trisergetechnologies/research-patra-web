@@ -1,0 +1,34 @@
+/* Admin component classes live in src/index.css (@layer components) so utilities can override them.
+   Rules here target classes added at runtime by the editor, which Tailwind's content scan cannot see. */
+.rp-prose img.ProseMirror-selectednode { @apply ring-2 ring-primaryGreen; }
+.rp-prose .selectedCell { @apply bg-primaryGreen/10; }
+.rp-prose p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  @apply text-muted float-left h-0 pointer-events-none;
+}
+/* Review comments painted onto the article. */
+.rp-hl {
+  @apply rounded-sm cursor-pointer transition-colors duration-150;
+  background: rgb(250 204 21 / 0.22);
+  box-shadow: inset 0 -2px 0 rgb(234 179 8 / 0.65);
+}
+.rp-hl.is-suggestion { background: rgb(56 189 248 / 0.16); box-shadow: inset 0 -2px 0 rgb(14 165 233 / 0.55); }
+.rp-hl.is-draft { box-shadow: inset 0 -2px 0 rgb(234 179 8 / 0.4); }
+.rp-hl.is-resolved { background: transparent; box-shadow: inset 0 -1px 0 rgb(100 116 139 / 0.45); }
+.rp-hl.is-pending { background: rgb(234 88 12 / 0.16); box-shadow: inset 0 -2px 0 rgb(234 88 12 / 0.7); }
+.rp-hl:hover, .rp-hl.is-active { background: rgb(250 204 21 / 0.42); }
+.rp-hl.is-suggestion.is-active, .rp-hl.is-suggestion:hover { background: rgb(56 189 248 / 0.3); }
+.rp-hl.is-active { animation: rpGlow 1.1s ease-out 1; }
+@keyframes rpGlow {
+  0% { outline: 4px solid rgb(250 204 21 / 0.5); outline-offset: 1px; }
+  100% { outline: 4px solid rgb(250 204 21 / 0); outline-offset: 3px; }
+}
+
+/* Word-level diff marks. */
+.rp-ins { @apply rounded-sm no-underline; color: inherit; background: rgb(16 185 129 / 0.18); }
+.rp-del { @apply rounded-sm line-through text-muted; background: rgb(244 63 94 / 0.12); text-decoration-color: rgb(244 63 94 / 0.6); }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: none; }
+}

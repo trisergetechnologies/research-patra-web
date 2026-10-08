@@ -1,0 +1,84 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Hidden until a keyboard user tabs to it. */
+.skip-link {
+  position: fixed; top: 10px; left: 10px; z-index: 100; transform: translateY(-160%);
+  background: #F97316; color: #1B0F05; font-weight: 700; padding: 10px 16px; border-radius: 10px;
+  transition: transform .15s;
+}
+.skip-link:focus { transform: none; outline: 2px solid #1B0F05; outline-offset: 2px; }
+
+@media print {
+  .skip-link, [data-print-hide] { display: none !important; }
+}
+
+/* Mirrors the main site's src/index.css so the shared header/footer look identical. */
+:root {
+  --page: 255 255 255;
+  --surface: 255 255 255;
+  --body: 15 23 42;
+  --muted: 100 116 139;
+  --border: 226 232 240;
+  --soft: 248 250 252;
+  --badge: 255 247 237;
+  --scroll-track: #F8FAFC;
+  --border-solid: #E2E8F0;
+  --badge-solid: #FFF7ED;
+}
+
+.dark,
+html.dark {
+  --page: 11 18 32;
+  --surface: 17 24 39;
+  --body: 248 250 252;
+  --muted: 203 213 225;
+  --border: 255 255 255;
+  --soft: 15 23 42;
+  --badge: 249 115 22;
+  --scroll-track: #0F172A;
+  --border-solid: rgba(255, 255, 255, 0.10);
+  --badge-solid: rgba(249, 115, 22, 0.15);
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 80px;
+}
+
+body {
+  font-family: var(--font-outfit), 'Outfit', sans-serif;
+  background-color: rgb(var(--page));
+  color: rgb(var(--body));
+  overflow-x: hidden;
+}
+
+::-webkit-scrollbar {
+  width: 12px;
+}
+::-webkit-scrollbar-track {
+  background: var(--scroll-track);
+}
+::-webkit-scrollbar-thumb {
+  background: #F97316;
+  border-radius: 10px;
+  border: 3px solid var(--scroll-track);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #EA580C;
+}
+
+::selection {
+  background-color: #F97316;
+  color: white;
+}
+
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-slide-up {
+  animation: slide-up 0.35s ease-out forwards;
+}

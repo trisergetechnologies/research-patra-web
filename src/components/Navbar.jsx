@@ -43,6 +43,9 @@ const Navbar = () => {
             <MegaMenu />
           </div>
 
+          {/* Blog hidden from the menu until launch; /blog itself stays live.
+          <a href="/blog" className={navLink}>Blog</a> */}
+
           <Link to="/about" className={navLink}>About Us</Link>
 
           <ThemeToggle className="shrink-0" />
@@ -113,6 +116,8 @@ const Navbar = () => {
                 </div>
               )}
             </div>
+            {/* Blog hidden until launch.
+            <a href="/blog" className="text-lg font-bold text-slate-900 dark:text-white">Blog</a> */}
             <Link to="/about" className="text-lg font-bold text-slate-900 dark:text-white" onClick={closeMobile}>About Us</Link>
             <button type="button" onClick={handleQuoteClick} className="w-full py-3.5 mt-2 bg-[#F97316] text-white rounded-xl font-bold shadow-lg">
               Send a Message

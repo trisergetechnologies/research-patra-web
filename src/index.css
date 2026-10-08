@@ -81,3 +81,48 @@ body {
 .animate-slide-up {
   animation: slide-up 0.35s ease-out forwards;
 }
+
+/* Admin dashboard components. In the components layer so utilities (w-*, py-*, flex) can override them. */
+@layer components {
+  .admin-input {
+    @apply block w-full rounded-lg border border-theme bg-page px-3 py-2 text-sm text-body placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-primaryGreen/40 focus:border-primaryGreen disabled:opacity-60;
+  }
+  .admin-btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg bg-primaryGreen px-4 py-2 text-sm font-medium text-white hover:bg-primaryGreenDark disabled:opacity-60 disabled:cursor-not-allowed transition-colors;
+  }
+  .admin-btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg border border-theme bg-surface px-4 py-2 text-sm font-medium text-body hover:bg-soft disabled:opacity-60 disabled:cursor-not-allowed transition-colors;
+  }
+  .admin-btn-ghost {
+    @apply inline-flex items-center justify-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm font-medium text-muted hover:bg-soft hover:text-body disabled:opacity-50 disabled:cursor-not-allowed transition-colors;
+  }
+  .admin-label {
+    @apply flex items-center gap-1.5 text-xs font-medium text-muted mb-1.5;
+  }
+  .admin-card {
+    @apply bg-surface border border-theme rounded-xl;
+  }
+
+  /* Editor content: close to the blog's article styles so writers see roughly what readers will. */
+  .rp-prose { @apply text-[15px] leading-7 text-body; }
+  .rp-prose > * + * { @apply mt-4; }
+  .rp-prose h2 { @apply text-xl font-semibold mt-8 leading-snug; }
+  .rp-prose h3 { @apply text-lg font-semibold mt-6 leading-snug; }
+  .rp-prose h4 { @apply text-base font-semibold mt-5; }
+  .rp-prose ul { @apply list-disc pl-6 space-y-1; }
+  .rp-prose ol { @apply list-decimal pl-6 space-y-1; }
+  .rp-prose a { @apply text-primaryGreen underline underline-offset-2; }
+  .rp-prose blockquote { @apply border-l-4 border-primaryGreen/60 pl-4 italic text-lg; }
+  .rp-prose blockquote cite { @apply block not-italic text-xs font-semibold uppercase tracking-wider text-muted mt-2; }
+  .rp-prose aside.j-note { @apply grid gap-1 rounded-lg bg-primaryGreen/10 px-4 py-3 text-sm; }
+  .rp-prose aside.j-note strong { @apply text-[11px] uppercase tracking-widest text-primaryGreenDark; }
+  .rp-prose pre { @apply rounded-lg bg-gray-900 text-gray-100 p-4 text-sm overflow-x-auto; }
+  .rp-prose code { @apply rounded bg-soft px-1 py-0.5 text-[0.9em]; }
+  .rp-prose pre code { @apply bg-transparent p-0; }
+  .rp-prose hr { @apply border-theme my-8; }
+  .rp-prose img { @apply rounded-lg max-w-full h-auto; }
+  .rp-prose table { @apply w-full border-collapse text-sm; }
+  .rp-prose th, .rp-prose td { @apply border border-theme px-3 py-2 align-top text-left; }
+  .rp-prose th { @apply bg-soft font-semibold; }
+  .rp-prose td p, .rp-prose th p { @apply m-0; }
+}

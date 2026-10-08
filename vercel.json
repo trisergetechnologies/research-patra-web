@@ -5,6 +5,14 @@
       "destination": "/start.html"
     },
     {
+      "source": "/blog",
+      "destination": "https://research-patra-blog.vercel.app/blog"
+    },
+    {
+      "source": "/blog/:path*",
+      "destination": "https://research-patra-blog.vercel.app/blog/:path*"
+    },
+    {
       "source": "/(.*)",
       "destination": "/"
     }

@@ -5,7 +5,8 @@ import reactRefresh from 'eslint-plugin-react-refresh'
 import { defineConfig, globalIgnores } from 'eslint/config'
 
 export default defineConfig([
-  globalIgnores(['dist']),
+  // blog-web is its own Next.js project with its own ESLint config.
+  globalIgnores(['dist', 'blog-web']),
   {
     files: ['**/*.{js,jsx}'],
     extends: [

@@ -20,6 +20,8 @@ const Footer = () => {
               <li><Link to="/" className="hover:text-[#F97316] transition duration-200">Home</Link></li>
               <li><Link to="/about" className="hover:text-[#F97316] transition duration-200">About Us</Link></li>
               <li><Link to="/services" className="hover:text-[#F97316] transition duration-200">Our Services</Link></li>
+              {/* Blog hidden until launch.
+              <li><a href="/blog" className="hover:text-[#F97316] transition duration-200">Blog</a></li> */}
               <li><Link to="/how-we-work" className="hover:text-[#F97316] transition duration-200">How We Work</Link></li>
               <li><Link to="/research-areas" className="hover:text-[#F97316] transition duration-200">Research Areas</Link></li>
               <li><Link to="/ethical-approach" className="hover:text-[#F97316] transition duration-200">Ethical Approach</Link></li>

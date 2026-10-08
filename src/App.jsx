@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { lazy, Suspense } from 'react';
 import Chatbot from './Chatbot';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ContactFormProvider } from './context/ContactFormContext';
@@ -34,13 +34,16 @@ import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsAndConditions from './pages/TermsAndConditions';
 import BibliometricAnalysis from './pages/BibliometricAnalysis';
 import PatentSupport from './pages/PatentSupport';
+import NotFound from './pages/NotFound';
+const AdminApp = lazy(() => import('./admin/AdminApp'));
+// /blog is a separate Next.js app (blog-web/), reached through the Vercel rewrite and the Vite dev proxy.
 // Ads landing is public/start.html, served at /start so Google can see a real <form>.
 // Re-enable by importing ./pages/Start and routing /start to it.
 // import Start from './pages/Start';
 
 function AppLayout() {
   return (
-    <div className="min-h-screen w-full overflow-x-hidden bg-page font-sans text-body flex flex-col">
+    <div className="min-h-screen w-full overflow-x-clip bg-page font-sans text-body flex flex-col">
       <Navbar />
       <main className="flex-grow">
         <Routes>
@@ -64,6 +67,7 @@ function AppLayout() {
           <Route path="/ethical-approach" element={<EthicalApproach />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
       <Footer />
@@ -74,16 +78,32 @@ function AppLayout() {
   );
 }
 
+function SiteShell() {
+  return (
+    <ContactFormProvider>
+      <ChatbotProvider>
+        <AppLayout />
+      </ChatbotProvider>
+    </ContactFormProvider>
+  );
+}
+
 function App() {
   return (
     <Router>
       <ScrollToTop />
       <ThemeProvider>
-        <ContactFormProvider>
-          <ChatbotProvider>
-            <AppLayout />
-          </ChatbotProvider>
-        </ContactFormProvider>
+        <Routes>
+          <Route
+            path="/admin/*"
+            element={
+              <Suspense fallback={null}>
+                <AdminApp />
+              </Suspense>
+            }
+          />
+          <Route path="*" element={<SiteShell />} />
+        </Routes>
       </ThemeProvider>
     </Router>
   );

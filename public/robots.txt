@@ -2,3 +2,4 @@ User-agent: *
 Allow: /
 
 Sitemap: https://researchpatra.com/sitemap.xml
+Sitemap: https://researchpatra.com/blog/sitemap.xml
