@@ -1,7 +1,7 @@
 import { env } from '../../config/env.js';
 import { User } from '../../models/User.js';
 import { ROLES } from '../../config/roles.js';
-import { ensureAuthorProfile } from '../../services/author.service.js';
+import { ensureAuthorProfile, publishExistingProfile } from '../../services/author.service.js';
 
 /** Creates or re-activates the seeded admin and staff accounts. Returns { admin, staff } users. */
 export async function ensureSeedAccounts() {
@@ -24,7 +24,8 @@ export async function ensureSeedAccounts() {
       user = await User.create(spec);
       console.log(`Created ${key} ${spec.email}`);
     }
-    await ensureAuthorProfile(user);
+    const profile = await ensureAuthorProfile(user);
+    await publishExistingProfile(profile);
     result[key] = user;
   }
   return result;

@@ -13,7 +13,8 @@
     "start": "node src/server.js",
     "seed:blog": "node src/scripts/seedBlog.js",
     "seed:users": "node src/scripts/seedUsers.js",
-    "sync:indexes": "node src/scripts/syncIndexes.js"
+    "test": "node --test src/services/plagiarism/plagiarism.test.js",
+    "backfill:authors": "node src/scripts/backfillAuthors.js"
   },
   "dependencies": {
     "cloudinary": "^2.11.0",

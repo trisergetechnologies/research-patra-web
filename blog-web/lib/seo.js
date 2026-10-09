@@ -47,7 +47,7 @@ export function personLd(author) {
   return {
     '@type': 'Person',
     name: author.name,
-    url: abs(`/author/${author.slug}`),
+    ...(author.slug ? { url: abs(`/author/${author.slug}`) } : {}),
     ...(author.role ? { jobTitle: author.role } : {}),
     ...(author.bio ? { description: author.bio } : {}),
     ...(author.avatar ? { image: author.avatar } : {}),

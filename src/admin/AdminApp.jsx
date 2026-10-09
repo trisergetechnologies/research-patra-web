@@ -12,9 +12,11 @@ import Users from './pages/Users';
 import Profile from './pages/Profile';
 import Posts from './pages/Posts';
 import ReviewQueue from './pages/ReviewQueue';
+import PlagiarismReport from './pages/PlagiarismReport';
 import Media from './pages/Media';
 import Categories from './pages/Categories';
 import Tags from './pages/Tags';
+import Subscribers from './pages/Subscribers';
 import AuthorProfile from './pages/AuthorProfile';
 import { ROLES } from './roles';
 
@@ -49,9 +51,11 @@ export default function AdminApp() {
               <Route path="author" element={<AuthorProfile />} />
               <Route path="profile" element={<Profile />} />
               <Route element={<ProtectedRoute roles={[ROLES.ADMIN]} />}>
+                <Route path="posts/:id/plagiarism" element={<PlagiarismReport />} />
                 <Route path="review" element={<ReviewQueue />} />
                 <Route path="categories" element={<Categories />} />
                 <Route path="tags" element={<Tags />} />
+                <Route path="subscribers" element={<Subscribers />} />
                 <Route path="users" element={<Users />} />
               </Route>
             </Route>

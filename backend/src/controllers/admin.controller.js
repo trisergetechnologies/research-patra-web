@@ -1,4 +1,5 @@
 import { User } from '../models/User.js';
+import { Subscriber, SUBSCRIBER_STATUS } from '../models/Subscriber.js';
 import { ALL_ROLES } from '../config/roles.js';
 import { ApiError, asyncHandler } from '../utils/ApiError.js';
 import { revokeAllForUser } from '../services/token.service.js';
@@ -20,6 +21,44 @@ export const listUsers = asyncHandler(async (req, res) => {
   const { items, nextCursor } = page.finish(rows);
 
   res.json({ users: items.map((u) => u.toPublic()), nextCursor, ...(total === null ? {} : { total }) });
+});
+
+const subscriberPublic = (s) => ({
+  id: s._id.toString(),
+  email: s.email,
+  status: s.status,
+  source: s.source || '',
+  createdAt: s.createdAt,
+  confirmedAt: s.confirmedAt,
+  unsubscribedAt: s.unsubscribedAt,
+});
+
+export const listSubscribers = asyncHandler(async (req, res) => {
+  const page = cursorPage(req.query, { field: 'createdAt', dir: -1 });
+  const base = {};
+  if (typeof req.query.q === 'string' && req.query.q.trim()) {
+    const q = req.query.q.trim().slice(0, 100).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    base.email = new RegExp(q, 'i');
+  }
+  const status = Object.values(SUBSCRIBER_STATUS).includes(req.query.status) ? req.query.status : '';
+  const filter = status ? { ...base, status } : base;
+
+  const [rows, total, grouped] = await Promise.all([
+    Subscriber.find({ $and: [filter, page.filter] }).sort(page.sort).limit(page.limit + 1).select('-tokenHash'),
+    req.query.cursor ? null : Subscriber.countDocuments(filter),
+    req.query.cursor ? null : Subscriber.aggregate([{ $match: base }, { $group: { _id: '$status', n: { $sum: 1 } } }]),
+  ]);
+  const { items, nextCursor } = page.finish(rows);
+  const counts = grouped
+    ? Object.fromEntries(Object.values(SUBSCRIBER_STATUS).map((s) => [s, grouped.find((g) => g._id === s)?.n ?? 0]))
+    : null;
+  if (counts) counts.all = Object.values(SUBSCRIBER_STATUS).reduce((sum, s) => sum + counts[s], 0);
+
+  res.json({
+    subscribers: items.map(subscriberPublic),
+    nextCursor,
+    ...(total === null ? {} : { total, counts }),
+  });
 });
 
 export const createUser = asyncHandler(async (req, res) => {

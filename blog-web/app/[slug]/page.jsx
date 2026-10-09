@@ -36,7 +36,7 @@ export async function generateMetadata({ params }) {
   return {
     title,
     description,
-    authors: [{ name: post.author.name, url: abs(`/author/${post.author.slug}`) }],
+    authors: [{ name: post.author.name, ...(post.author.slug ? { url: abs(`/author/${post.author.slug}`) } : {}) }],
     keywords: post.tags.map((t) => t.name),
     category: post.category.name,
     alternates: alternatesFor(url),
@@ -49,7 +49,7 @@ export async function generateMetadata({ params }) {
       description,
       publishedTime: post.publishedAt,
       modifiedTime: post.modifiedAt,
-      authors: [abs(`/author/${post.author.slug}`)],
+      ...(post.author.slug ? { authors: [abs(`/author/${post.author.slug}`)] } : {}),
       section: post.category.name,
       tags: post.tags.map((t) => t.name),
       images: [image],

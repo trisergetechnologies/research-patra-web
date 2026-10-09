@@ -9,6 +9,7 @@ import LoadMore from '../components/ui/LoadMore';
 import InfoTip from '../components/ui/InfoTip';
 import { EmptyState, ErrorBanner, PageHeader, Skeleton } from '../components/ui/States';
 import { timeAgo } from '../lib/format';
+import { plagiarismLabel } from '../lib/plagiarism';
 
 const DEFAULTS = { q: '' };
 const LIMIT = 20;
@@ -58,6 +59,7 @@ export default function ReviewQueue() {
                         {isEdit ? 'Edit to live post' : 'New post'}
                       </span>
                       {p.category && <span className="text-xs text-muted truncate">{p.category.name}</span>}
+                      {p.plagiarism && <span className="text-xs text-muted">{plagiarismLabel(p.plagiarism)}</span>}
                     </div>
                     <p className="font-medium truncate">{p.title}</p>
                     <p className="text-xs text-muted mt-0.5 inline-flex items-center gap-1">

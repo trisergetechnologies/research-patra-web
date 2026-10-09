@@ -17,6 +17,7 @@ import {
   mergeTagSchema,
   updateMyAuthorSchema,
   adminUpdateAuthorSchema,
+  rejectAuthorSchema,
   uploadMediaSchema,
   updateMediaSchema,
   createCommentSchema,
@@ -29,6 +30,7 @@ import * as T from '../controllers/cms.taxonomy.controller.js';
 import * as M from '../controllers/cms.media.controller.js';
 import * as A from '../controllers/cms.authors.controller.js';
 import { createPreviewTicket } from '../controllers/preview.controller.js';
+import { enqueuePlagiarism, getPlagiarism } from '../controllers/cms.plagiarism.controller.js';
 
 const router = Router();
 const adminOnly = authorize(ROLES.ADMIN);
@@ -40,6 +42,15 @@ const uploadLimiter = rateLimit({
   standardHeaders: 'draft-7',
   legacyHeaders: false,
   message: { message: 'Too many uploads, try again in a few minutes' },
+});
+
+const plagiarismLimiter = rateLimit({
+  windowMs: 10 * 60 * 1000,
+  limit: 30,
+  keyGenerator: (req) => String(req.user._id),
+  standardHeaders: 'draft-7',
+  legacyHeaders: false,
+  message: { message: 'Too many plagiarism checks, try again in a few minutes' },
 });
 
 const previewLimiter = rateLimit({
@@ -70,6 +81,8 @@ router.post('/posts/:id/unpublish', validate(postActionSchema), P.unpublishPost)
 router.post('/posts/:id/archive', validate(postActionSchema), P.archivePost);
 router.post('/posts/:id/restore', validate(postActionSchema), P.restorePost);
 router.post('/posts/:id/preview-ticket', previewLimiter, createPreviewTicket);
+router.post('/posts/:id/plagiarism', adminOnly, plagiarismLimiter, enqueuePlagiarism);
+router.get('/posts/:id/plagiarism', adminOnly, getPlagiarism);
 router.get('/posts/:id/review', RV.getReview);
 router.post('/posts/:id/comments', validate(createCommentSchema), RV.createComment);
 router.patch('/posts/:id/comments/:commentId', validate(updateCommentSchema), RV.updateComment);
@@ -96,7 +109,13 @@ router.delete('/tags/:id', adminOnly, T.deleteTag);
 
 router.get('/authors/me', A.getMyAuthor);
 router.patch('/authors/me', validate(updateMyAuthorSchema), A.updateMyAuthor);
+router.post('/authors/me/submit', A.submitMyAuthor);
+router.post('/authors/me/remove', A.removeMyAuthor);
 router.get('/authors', adminOnly, A.listAuthors);
 router.patch('/authors/:id', adminOnly, validate(adminUpdateAuthorSchema), A.updateAuthor);
+router.post('/authors/:id/approve', adminOnly, A.approveAuthor);
+router.post('/authors/:id/reject', adminOnly, validate(rejectAuthorSchema), A.rejectAuthor);
+router.post('/authors/:id/remove', adminOnly, A.removeAuthor);
+router.post('/authors/:id/restore', adminOnly, A.restoreAuthor);
 
 export default router;

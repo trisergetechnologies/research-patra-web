@@ -144,6 +144,8 @@ export const cmsApi = {
   deletePost: (id, version) => api(`/cms/posts/${id}?version=${version}`, { method: 'DELETE' }),
   postAction: (id, action, body) => api(`/cms/posts/${id}/${action}`, { method: 'POST', body }),
   previewTicket: (id, target) => api(`/cms/posts/${id}/preview-ticket`, { method: 'POST', body: { target } }),
+  startPlagiarism: (id) => api(`/cms/posts/${id}/plagiarism`, { method: 'POST' }),
+  getPlagiarism: (id) => api(`/cms/posts/${id}/plagiarism`),
   getReview: (id) => api(`/cms/posts/${id}/review`),
   addComment: (id, data) => api(`/cms/posts/${id}/comments`, { method: 'POST', body: data }),
   updateComment: (id, cid, data) => api(`/cms/posts/${id}/comments/${cid}`, { method: 'PATCH', body: data }),
@@ -176,8 +178,14 @@ export const cmsApi = {
 
   myAuthor: () => api('/cms/authors/me'),
   updateMyAuthor: (data) => api('/cms/authors/me', { method: 'PATCH', body: data }),
+  submitMyAuthor: () => api('/cms/authors/me/submit', { method: 'POST' }),
+  removeMyAuthor: () => api('/cms/authors/me/remove', { method: 'POST' }),
   listAuthors: () => api('/cms/authors'),
   updateAuthor: (id, data) => api(`/cms/authors/${id}`, { method: 'PATCH', body: data }),
+  approveAuthor: (id) => api(`/cms/authors/${id}/approve`, { method: 'POST' }),
+  rejectAuthor: (id, note) => api(`/cms/authors/${id}/reject`, { method: 'POST', body: { note } }),
+  removeAuthor: (id) => api(`/cms/authors/${id}/remove`, { method: 'POST' }),
+  restoreAuthor: (id) => api(`/cms/authors/${id}/restore`, { method: 'POST' }),
 };
 
 /** First field-level message if the API returned one, else the general message. */
@@ -185,6 +193,7 @@ export const errorMessage = (err) => err?.data?.details?.[0]?.message || err?.me
 
 export const adminApi = {
   listUsers: (params = {}) => api(`/admin/users${toQuery(params)}`),
+  listSubscribers: (params = {}) => api(`/admin/subscribers${toQuery(params)}`),
   createUser: (data) => api('/admin/users', { method: 'POST', body: data }),
   updateUser: (id, data) => api(`/admin/users/${id}`, { method: 'PATCH', body: data }),
 };

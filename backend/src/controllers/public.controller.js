@@ -4,17 +4,24 @@ import { Tag } from '../models/Tag.js';
 import { AuthorProfile } from '../models/AuthorProfile.js';
 import { ApiError, asyncHandler } from '../utils/ApiError.js';
 import { escapeRegex } from '../utils/slug.js';
+import { findPublicAuthor, isPublicAuthor } from '../services/author.service.js';
 import { mediaUrl, publicImage } from '../services/media.service.js';
 
 const LIVE = Object.freeze({ status: S.PUBLISHED, deletedAt: null });
 const SUMMARY_FIELDS = '-contentHtml -keyTakeaways -seo -pendingRevision -slugHistory -createdBy -updatedBy -reviewNote -helpful -reviewedBy';
+const AUTHOR_POPULATE = { path: 'avatar' };
+const PUBLISHED_AVATAR = { path: 'published.avatar' };
 export const SUMMARY_POPULATE = [
   { path: 'category', select: 'name slug color' },
   { path: 'tags', select: 'name slug' },
-  { path: 'author', populate: { path: 'avatar' } },
+  { path: 'author', populate: [AUTHOR_POPULATE, PUBLISHED_AVATAR] },
   { path: 'coverImage' },
 ];
-export const FULL_POPULATE = [...SUMMARY_POPULATE, { path: 'ogImage' }, { path: 'reviewedBy', populate: { path: 'avatar' } }];
+export const FULL_POPULATE = [
+  ...SUMMARY_POPULATE,
+  { path: 'ogImage' },
+  { path: 'reviewedBy', populate: [AUTHOR_POPULATE, PUBLISHED_AVATAR] },
+];
 const SORTS = {
   latest: { publishedAt: -1 },
   popular: { views: -1, publishedAt: -1 },
@@ -26,19 +33,23 @@ const int = (v, def, max) => Math.min(max, Math.max(1, Number.parseInt(v, 10) ||
 
 const avatarUrl = (media) => (media?.publicId ? mediaUrl(media.publicId, { w: 192, h: 192 }) : null);
 
-const author = (a) =>
-  a?.displayName
-    ? {
-        slug: a.slug,
-        name: a.displayName,
-        role: a.roleTitle || '',
-        bio: a.bio || '',
-        avatar: avatarUrl(a.avatar),
-        credentials: a.credentials || '',
-        expertise: a.expertise || [],
-        links: Object.fromEntries(Object.entries(a.links || {}).filter(([, v]) => v)),
-      }
-    : null;
+// Readers see the last approved snapshot. The slug is included only while that author's page is live.
+const author = (a) => {
+  const src = a?.published?.displayName ? a.published : a;
+  if (!src?.displayName) return null;
+  const avatar = src === a ? a.avatar : src.avatar?.publicId ? src.avatar : null;
+  const pageOn = isPublicAuthor(a);
+  return {
+    ...(pageOn ? { slug: src.slug || a.slug } : {}),
+    name: src.displayName,
+    role: src.roleTitle || '',
+    bio: src.bio || '',
+    avatar: avatarUrl(avatar),
+    credentials: src.credentials || '',
+    expertise: src.expertise || [],
+    links: Object.fromEntries(Object.entries(src.links || {}).filter(([, v]) => v)),
+  };
+};
 
 function summary(p) {
   return {
@@ -80,6 +91,14 @@ const findSummaries = (filter, sort, skip, limit) =>
 
 const idBySlug = async (Model, slug) => (slug ? (await Model.findOne({ slug }).select('_id').lean())?._id ?? null : undefined);
 
+const authorIdBySlug = async (slug) => {
+  if (!slug) return undefined;
+  const live = await AuthorProfile.findOne({ deletedAt: null, eligible: true, 'published.slug': slug }).select('_id').lean();
+  if (live) return live._id;
+  const legacy = await AuthorProfile.findOne({ deletedAt: null, status: { $exists: false }, slug }).select('_id').lean();
+  return legacy?._id ?? null;
+};
+
 export const MAX_PAGE = 50;
 export const MAX_LIMIT = 24;
 const MIN_SEARCH = 2;
@@ -94,7 +113,7 @@ export const listPosts = asyncHandler(async (req, res) => {
   const [catId, tagId, authorId] = await Promise.all([
     idBySlug(Category, str(req.query.category)),
     idBySlug(Tag, str(req.query.tag)),
-    idBySlug(AuthorProfile, str(req.query.author)),
+    authorIdBySlug(str(req.query.author)),
   ]);
   // An unknown slug matches nothing rather than being ignored.
   if (catId === null || tagId === null || authorId === null) return res.json({ items: [], total: 0, page, totalPages: 1 });
@@ -108,7 +127,9 @@ export const listPosts = asyncHandler(async (req, res) => {
     const [cats, tags, authors] = await Promise.all([
       Category.find({ name: rx }).select('_id').lean(),
       Tag.find({ name: rx }).select('_id').lean(),
-      AuthorProfile.find({ displayName: rx }).select('_id').lean(),
+      AuthorProfile.find({
+        $or: [{ 'published.displayName': rx }, { status: { $exists: false }, displayName: rx }],
+      }).select('_id').lean(),
     ]);
     and.push({
       $or: [
@@ -233,9 +254,9 @@ export const listTags = asyncHandler(async (req, res) => {
 });
 
 export const getAuthor = asyncHandler(async (req, res) => {
-  const profile = await AuthorProfile.findOne({ slug: str(req.params.slug).toLowerCase() }).populate('avatar').lean();
+  const profile = await findPublicAuthor(str(req.params.slug).toLowerCase());
   if (!profile) throw ApiError.notFound('Author not found');
-  res.json({ author: author(profile) });
+  res.json({ author: author(profile.toObject()) });
 });
 
 export const sitemap = asyncHandler(async (req, res) => {
@@ -243,7 +264,10 @@ export const sitemap = asyncHandler(async (req, res) => {
     Post.find({ ...LIVE, 'seo.noindex': { $ne: true } }).select('slug updatedAt contentUpdatedAt publishedAt author').sort({ publishedAt: -1 }).lean(),
     liveCounts('category'),
     liveCounts('tags'),
-    AuthorProfile.find().select('slug').lean(),
+    AuthorProfile.find({
+      deletedAt: null,
+      $or: [{ eligible: true, 'published.slug': { $nin: [null, ''] } }, { status: { $exists: false } }],
+    }).select('slug published.slug').lean(),
   ]);
   const [cats, tags] = await Promise.all([
     Category.find({ _id: { $in: [...catCounts.keys()] } }).select('slug').lean(),
@@ -254,7 +278,7 @@ export const sitemap = asyncHandler(async (req, res) => {
     posts: posts.map((p) => ({ slug: p.slug, updatedAt: p.contentUpdatedAt || p.publishedAt || p.updatedAt })),
     categories: cats.map((c) => ({ slug: c.slug })),
     tags: tags.map((t) => ({ slug: t.slug })),
-    authors: authors.filter((a) => withPosts.has(String(a._id))).map((a) => ({ slug: a.slug })),
+    authors: authors.filter((a) => withPosts.has(String(a._id)) && (a.published?.slug || a.slug)).map((a) => ({ slug: a.published?.slug || a.slug })),
   });
 });
 

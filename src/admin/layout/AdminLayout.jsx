@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import {
-  LayoutDashboard, Users, UserCircle, LogOut, Menu, X, FileText, Inbox, Images, FolderTree, Tags, PenSquare,
+  LayoutDashboard, Users, UserCircle, LogOut, Menu, X, FileText, Inbox, Images, FolderTree, Tags, PenSquare, Mail,
 } from 'lucide-react';
 import { useAuth } from '../context/useAuth';
 import { ROLES, ROLE_LABELS } from '../roles';
@@ -14,6 +14,7 @@ const NAV = [
   { to: '/admin/media', label: 'Media', icon: Images },
   { to: '/admin/categories', label: 'Categories', icon: FolderTree, roles: [ROLES.ADMIN] },
   { to: '/admin/tags', label: 'Tags', icon: Tags, roles: [ROLES.ADMIN] },
+  { to: '/admin/subscribers', label: 'Subscribers', icon: Mail, roles: [ROLES.ADMIN] },
   { to: '/admin/author', label: 'Author profile', icon: PenSquare },
   { group: 'Account' },
   { to: '/admin/users', label: 'Users', icon: Users, roles: [ROLES.ADMIN] },

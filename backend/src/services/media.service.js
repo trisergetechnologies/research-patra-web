@@ -8,6 +8,7 @@ import { escapeRegex } from '../utils/slug.js';
 import { Media } from '../models/Media.js';
 import { Post } from '../models/Post.js';
 import { AuthorProfile } from '../models/AuthorProfile.js';
+import { logger } from '../utils/logger.js';
 
 export const MAX_IMAGE_BYTES = 500 * 1024;
 const ALLOWED_MIME = ['image/jpeg', 'image/png', 'image/webp'];
@@ -90,8 +91,10 @@ export async function createMedia(user, file, { slot, alt }) {
   try {
     result = await uploadBuffer(file.buffer, slot);
   } catch (err) {
-    console.error('[media] Cloudinary upload failed:', err.message);
-    throw new ApiError(502, 'Image host is unavailable, please try again');
+    logger.error('media', 'upload failed', err);
+    const apiErr = new ApiError(502, 'Image host is unavailable, please try again');
+    apiErr.logged = true;
+    throw apiErr;
   }
 
   return Media.create({
@@ -175,7 +178,7 @@ export async function findMediaUsage(media) {
       .select('title slug deletedAt')
       .limit(20)
       .lean(),
-    AuthorProfile.find({ avatar: media._id }).select('displayName slug').lean(),
+    AuthorProfile.find({ $or: [{ avatar: media._id }, { 'published.avatar': media._id }] }).select('displayName slug').lean(),
   ]);
   return {
     posts: posts.map((p) => ({ id: String(p._id), title: p.title, deleted: !!p.deletedAt })),
@@ -194,8 +197,10 @@ export async function deleteMedia(media) {
     try {
       await cloudinary.uploader.destroy(media.publicId, { resource_type: 'image', invalidate: true });
     } catch (err) {
-      console.error('[media] Cloudinary delete failed:', err.message);
-      throw new ApiError(502, 'Image host is unavailable, please try again');
+      logger.error('media', 'delete failed', err);
+      const apiErr = new ApiError(502, 'Image host is unavailable, please try again');
+      apiErr.logged = true;
+      throw apiErr;
     }
   }
   await media.deleteOne();

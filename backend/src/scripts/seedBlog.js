@@ -10,6 +10,7 @@ import { Category } from '../models/Category.js';
 import { Tag } from '../models/Tag.js';
 import { AuditLog } from '../models/AuditLog.js';
 import { AuthorProfile } from '../models/AuthorProfile.js';
+import { publishExistingProfile, publicSnapshot } from '../services/author.service.js';
 import { slugify } from '../utils/slug.js';
 import { readingTime, sanitizePostHtml } from '../utils/html.js';
 import { ensureSeedAccounts } from './lib/seedAccounts.js';
@@ -67,7 +68,14 @@ async function run() {
     if (!profile.roleTitle && !profile.bio) {
       profile.roleTitle = AUTHORS[key].role;
       profile.bio = AUTHORS[key].bio;
+      if (!profile.published?.bio) {
+        profile.published = publicSnapshot(profile);
+        profile.status = 'approved';
+        profile.eligible = true;
+      }
       await profile.save();
+    } else {
+      await publishExistingProfile(profile);
     }
     authors[key] = { user, profile };
   }

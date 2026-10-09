@@ -83,9 +83,9 @@ function normalizeTag(t) {
 }
 
 function normalizeAuthor(a) {
-  if (!a) return { slug: 'research-patra', name: 'Research Patra', role: 'Editorial team', bio: '', avatar: null, credentials: '', expertise: [], links: {} };
+  if (!a || !a.name) return { slug: '', name: 'Research Patra', role: 'Editorial team', bio: '', avatar: null, credentials: '', expertise: [], links: {} };
   return {
-    slug: a.slug || slugify(a.name),
+    slug: a.slug || '',
     name: a.name,
     role: a.role || '',
     bio: a.bio || '',

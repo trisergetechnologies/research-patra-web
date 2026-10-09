@@ -9,6 +9,8 @@ import { cursorPage } from '../utils/cursor.js';
 import { can, visibilityFilter } from '../policies/post.policy.js';
 import * as posts from '../services/post.service.js';
 import { serializePostDetail, serializePostRow } from '../services/cms.serialize.js';
+import { summariesFor, summaryFor } from '../services/plagiarism/summary.js';
+import { latestScan } from '../services/plagiarism/worker.js';
 
 const SORTS = {
   updated: { field: 'updatedAt', dir: -1 },
@@ -67,7 +69,12 @@ export const listPosts = asyncHandler(async (req, res) => {
   ]);
 
   const { items, nextCursor } = page.finish(rows);
-  res.json({ posts: items.map(serializePostRow), nextCursor, ...(total === null ? {} : { total, counts }) });
+  let postsOut = items.map(serializePostRow);
+  if (req.user.role === ROLES.ADMIN && status === 'review') {
+    const summaries = await summariesFor(items.map((post) => post._id));
+    postsOut = postsOut.map((row) => ({ ...row, plagiarism: summaries.get(row.id) || { status: 'none', verdict: null, stale: false } }));
+  }
+  res.json({ posts: postsOut, nextCursor, ...(total === null ? {} : { total, counts }) });
 });
 
 /** Numbers shown on the status filter chips. */
@@ -93,14 +100,22 @@ export async function findVisible(req, populate = false) {
   return post;
 }
 
+async function presentPost(req, post) {
+  const detail = serializePostDetail(post, req.user);
+  if (req.user.role === ROLES.ADMIN) {
+    detail.plagiarism = summaryFor(await latestScan(post._id), post);
+  }
+  return detail;
+}
+
 const respond = async (req, res, post, status = 200) => {
   const fresh = await posts.loadPostForCms(post._id);
-  res.status(status).json({ post: serializePostDetail(fresh, req.user) });
+  res.status(status).json({ post: await presentPost(req, fresh) });
 };
 
 export const getPost = asyncHandler(async (req, res) => {
   const post = await findVisible(req, true);
-  res.json({ post: serializePostDetail(post, req.user) });
+  res.json({ post: await presentPost(req, post) });
 });
 
 export const getPostHistory = asyncHandler(async (req, res) => {

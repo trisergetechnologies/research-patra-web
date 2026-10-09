@@ -87,7 +87,7 @@ export default function Dashboard() {
         <Stat label={isAdmin ? 'Waiting for review' : 'In review'} value={c?.review} icon={Send} to={isAdmin ? '/admin/review' : '/admin/posts?status=review'} tone="text-amber-600 bg-amber-500/10" />
         <Stat label="Drafts" value={c?.draft} icon={PenLine} to="/admin/posts?status=draft" tone="text-sky-600 bg-sky-500/10" />
         <Stat label="Total views" value={data ? formatNumber(data.totalViews) : undefined} icon={Eye} />
-        {isAdmin && <Stat label="Subscribers" value={data ? formatNumber(data.subscribers ?? 0) : undefined} icon={Mail} tone="text-violet-600 bg-violet-500/10" />}
+        {isAdmin && <Stat label="Subscribers" value={data ? formatNumber(data.subscribers ?? 0) : undefined} icon={Mail} to="/admin/subscribers?status=active" tone="text-violet-600 bg-violet-500/10" />}
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">

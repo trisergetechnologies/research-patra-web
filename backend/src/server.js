@@ -1,15 +1,19 @@
 import app from './app.js';
 import { env } from './config/env.js';
 import { connectDB, disconnectDB } from './config/db.js';
+import { startPlagiarismWorker } from './services/plagiarism/worker.js';
+import { logger } from './utils/logger.js';
 
 async function start() {
   await connectDB();
+  const stopPlagiarism = startPlagiarismWorker();
   const server = app.listen(env.port, () => {
-    console.log(`API listening on http://localhost:${env.port}`);
+    logger.info('server', `listening on http://localhost:${env.port}`);
   });
 
   const shutdown = async (signal) => {
-    console.log(`${signal} received, shutting down`);
+    logger.info('server', `${signal} shutting down`);
+    stopPlagiarism();
     server.close(async () => {
       await disconnectDB();
       process.exit(0);
@@ -20,6 +24,6 @@ async function start() {
 }
 
 start().catch((err) => {
-  console.error('Failed to start server:', err);
+  logger.error('server', 'failed to start', err);
   process.exit(1);
 });

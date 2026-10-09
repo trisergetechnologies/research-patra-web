@@ -1,5 +1,6 @@
 import nodemailer from 'nodemailer';
 import { env } from '../config/env.js';
+import { logger } from '../utils/logger.js';
 
 let transporter;
 
@@ -63,7 +64,7 @@ function noticeEmailHtml({ name, message, quote, ctaLabel, ctaUrl }) {
 /** Best-effort workflow email (review requests, feedback). Never throws; without SMTP it only logs. */
 export async function sendNotice({ to, name, subject, message, quote = '', ctaLabel, ctaUrl }) {
   if (!mailConfigured()) {
-    console.log(`[mail] SMTP not configured. Notice to ${to}: ${subject}`);
+    logger.warn('mail', `SMTP not configured. Notice to ${to}: ${subject}`);
     return;
   }
   try {
@@ -75,7 +76,7 @@ export async function sendNotice({ to, name, subject, message, quote = '', ctaLa
       html: noticeEmailHtml({ name, message, quote, ctaLabel, ctaUrl }),
     });
   } catch (err) {
-    console.error('[mail] notice failed:', err.message);
+    logger.warn('mail', `notice failed: ${err.message}`);
   }
 }
 
@@ -83,7 +84,7 @@ export async function sendNotice({ to, name, subject, message, quote = '', ctaLa
 export async function sendLoginCode({ to, name, code, minutes }) {
   if (!mailConfigured()) {
     if (env.isProd) throw new Error('SMTP is not configured');
-    console.log(`[mail] SMTP not configured. Login code for ${to}: ${code}`);
+    logger.warn('mail', `SMTP not configured. Login code for ${to}: ${code}`);
     return;
   }
   await getTransporter().sendMail({

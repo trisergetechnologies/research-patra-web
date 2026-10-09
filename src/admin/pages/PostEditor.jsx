@@ -12,6 +12,9 @@ import RichEditor from '../components/editor/RichEditor';
 import { Counter, KeyTakeaways, Section, SeoPanel, TagInput } from '../components/editor/parts';
 import ImagePicker from '../components/media/ImagePicker';
 import StatusBadge from '../components/ui/StatusBadge';
+import PlagiarismChip from '../components/PlagiarismChip';
+import PublishConfirm from '../components/PublishConfirm';
+import { hasPlagiarismReport } from '../lib/plagiarism';
 import InfoTip from '../components/ui/InfoTip';
 import ConfirmDialog from '../components/ui/ConfirmDialog';
 import Modal from '../components/ui/Modal';
@@ -69,6 +72,19 @@ function payloadOf(f) {
 const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 const diff = (next, base) => Object.fromEntries(Object.entries(next).filter(([k, v]) => v !== undefined && !same(v, base[k])));
 
+const AUTHOR_NOT_APPROVED = 'Your author profile is not approved, so this article cannot be sent for review.';
+const AUTHOR_REMOVED = 'This author profile is removed. Restore and approve it before publishing this article.';
+
+function authorGate(author) {
+  if (!author || author.deletedAt || !author.eligible) {
+    return {
+      submit: AUTHOR_NOT_APPROVED,
+      approve: author?.deletedAt ? AUTHOR_REMOVED : AUTHOR_NOT_APPROVED,
+    };
+  }
+  return null;
+}
+
 const ACTION_DONE = {
   submit: 'Sent for review',
   approve: 'Published',
@@ -103,6 +119,7 @@ export default function PostEditor() {
   const [slugTouched, setSlugTouched] = useState(false);
   const [categories, setCategories] = useState([]);
   const [authors, setAuthors] = useState([]);
+  const [mine, setMine] = useState(undefined);
   const [seriesNames, setSeriesNames] = useState([]);
   const [editor, setEditor] = useState(null);
   const [viewState, setViewState] = useState({ id, view: 'review' });
@@ -141,6 +158,7 @@ export default function PostEditor() {
     cmsApi.listCategories().then((d) => setCategories(d.categories)).catch(() => {});
     cmsApi.listSeries().then((d) => setSeriesNames(d.items)).catch(() => {});
     if (isAdmin) cmsApi.listAuthors().then((d) => setAuthors(d.authors)).catch(() => {});
+    cmsApi.myAuthor().then((d) => setMine(d.author)).catch(() => setMine(null));
   }, [isAdmin]);
 
   const applyPost = useCallback(
@@ -278,6 +296,19 @@ export default function PostEditor() {
 
   const fire = (action) => runAction(action).catch(() => {});
 
+  const requestReport = useCallback(async () => {
+    const summary = post?.plagiarism;
+    const inFlight = summary?.status === 'queued' || summary?.status === 'running';
+    if (post && (hasPlagiarismReport(summary) || inFlight)) {
+      navigate(`/admin/posts/${post.id}/plagiarism`);
+      return;
+    }
+    let current = post;
+    if (isNew || (dirty && perms.edit)) current = await save({ quiet: true });
+    const data = await cmsApi.startPlagiarism(current.id);
+    setPost((prev) => (prev && prev.id === current.id ? { ...prev, plagiarism: data.summary } : prev));
+  }, [post, isNew, dirty, perms.edit, save, navigate]);
+
   const remove = async () => {
     await cmsApi.deletePost(post.id, post.version);
     toast.success('Moved to trash');
@@ -412,6 +443,10 @@ export default function PostEditor() {
   const reviewer = ws.review.comments.find((c) => c.status !== 'draft')?.author?.name || 'The reviewer';
   const showFeedback = !canComment && counts.sent > 0 && !inReviewNow;
   const submitBlocked = perms.submit && counts.mustLeft > 0;
+  const gateAuthor = form.author || (mine === undefined ? undefined : mine);
+  const waitingForAuthor = !form.author && mine === undefined;
+  const profileBlock = waitingForAuthor ? null : authorGate(gateAuthor);
+  const profileMessage = profileBlock ? (perms.approve && !perms.submit ? profileBlock.approve : profileBlock.submit) : '';
   const showComments = () => {
     setAsideTab('comments');
     requestAnimationFrame(() => document.getElementById('review-comments')?.scrollIntoView({ block: 'start', behavior: 'smooth' }));
@@ -442,6 +477,15 @@ export default function PostEditor() {
         </Link>
         <div className="min-w-0 flex-1 flex items-center gap-2">
           <StatusBadge status={isNew ? 'draft' : status} revisionState={rev?.state} deleted={!!post?.deletedAt} />
+          {isAdmin && !isNew && post && (
+            <PlagiarismChip
+              postId={post.id}
+              summary={post.plagiarism}
+              dirty={dirty}
+              poll
+              onChange={(summary) => setPost((current) => (current ? { ...current, plagiarism: summary } : current))}
+            />
+          )}
           <span className="hidden sm:inline text-xs text-muted truncate">
             {saving ? 'Saving…' : dirty ? 'Unsaved changes' : post ? `Saved ${timeAgo(target === 'revision' && rev ? rev.updatedAt : post.updatedAt)}` : 'New post'}
           </span>
@@ -466,8 +510,8 @@ export default function PostEditor() {
             <button
               type="button"
               className="admin-btn-primary"
-              disabled={!!busy || saving || submitBlocked}
-              title={submitBlocked ? `Resolve ${counts.mustLeft} must-fix comment${counts.mustLeft === 1 ? '' : 's'} first` : undefined}
+              disabled={!!busy || saving || submitBlocked || waitingForAuthor || !!profileBlock}
+              title={profileBlock?.submit || (submitBlocked ? `Resolve ${counts.mustLeft} must-fix comment${counts.mustLeft === 1 ? '' : 's'} first` : undefined)}
               onClick={() => fire('submit')}
             >
               {busy === 'submit' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
@@ -475,7 +519,13 @@ export default function PostEditor() {
             </button>
           )}
           {perms.approve && !canComment && (
-            <button type="button" className="admin-btn-primary" disabled={!!busy || saving} onClick={() => setDialog('approve')}>
+            <button
+              type="button"
+              className="admin-btn-primary"
+              disabled={!!busy || saving || waitingForAuthor || !!profileBlock}
+              title={profileBlock?.approve || undefined}
+              onClick={() => setDialog('approve')}
+            >
               {busy === 'approve' ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
               {publishLabel}
             </button>
@@ -509,6 +559,9 @@ export default function PostEditor() {
 
       {/* Banners */}
       <div className="space-y-3 mb-5">
+        {profileMessage && (perms.submit || perms.approve) && (
+          <Banner tone="amber" icon={AlertTriangle}>{profileMessage}</Banner>
+        )}
         {conflict && (
           <Banner tone="red" icon={AlertTriangle}>
             Someone else saved this post while you were editing.
@@ -805,7 +858,7 @@ export default function PostEditor() {
                 <select id="author" className="admin-input" value={form.author?.id || ''} disabled={readOnly} onChange={(e) => set({ author: authors.find((a) => a.id === e.target.value) || null })}>
                   {!form.author && <option value="">You</option>}
                   {authors.map((a) => (
-                    <option key={a.id} value={a.id}>{a.displayName}</option>
+                    <option key={a.id} value={a.id}>{a.displayName}{a.deletedAt ? ' · Removed' : ''}</option>
                   ))}
                 </select>
               </div>
@@ -851,21 +904,31 @@ export default function PostEditor() {
           drafts={counts.drafts}
           busy={busy}
           publishLabel={publishLabel}
+          approveTitle={profileBlock?.approve}
           onRequest={() => setDialog('request')}
           onApprove={() => setDialog('approve')}
+          plagiarism={
+            <PlagiarismChip
+              postId={post.id}
+              summary={post.plagiarism}
+              dirty={dirty}
+              onChange={(summary) => setPost((current) => (current ? { ...current, plagiarism: summary } : current))}
+            />
+          }
         />
       )}
 
       {/* Dialogs */}
-      <ConfirmDialog
+      <PublishConfirm
         open={dialog === 'approve'}
         onClose={() => setDialog(null)}
-        onConfirm={() => runAction('approve')}
+        onPublish={() => runAction('approve')}
+        onReport={requestReport}
         title={publishLabel}
+        summary={post?.plagiarism}
         message={`${rev ? 'The pending edits replace the live article.' : 'The post goes live on the blog right away.'}${
           counts.drafts ? ` Your ${counts.drafts} unsent comment${counts.drafts === 1 ? '' : 's'} will be discarded.` : ''
         }`}
-        confirmLabel={publishLabel}
       />
       <ConfirmDialog
         open={dialog === 'request'}
@@ -965,21 +1028,24 @@ function FieldCommentButton({ count, canAdd, onAdd, onShow, className = '' }) {
 }
 
 /** Sticky footer while reviewing: what will be sent, and the two decisions. */
-function ReviewBar({ writer, isEdit, round, drafts, busy, publishLabel, onRequest, onApprove }) {
+function ReviewBar({ writer, isEdit, round, drafts, busy, publishLabel, approveTitle, onRequest, onApprove, plagiarism }) {
   return (
     <div className="sticky bottom-0 z-30 -mx-4 md:-mx-8 -mb-4 md:-mb-8 mt-8 flex flex-wrap items-center gap-3 border-t border-theme bg-soft/90 px-4 py-3 backdrop-blur md:px-8">
-      <p className="min-w-0 flex-1 text-sm">
+      <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-4 gap-y-1">
+        {plagiarism}
+      <p className="min-w-0 text-sm">
         <span className="font-medium">Reviewing {writer}&rsquo;s {isEdit ? 'edits' : 'post'}</span>
         <span className="text-muted">
           {round > 1 ? ` · Round ${round}` : ''}
           {drafts ? ` · ${drafts} comment${drafts === 1 ? '' : 's'} ready to send` : ''}
         </span>
       </p>
+      </div>
       <button type="button" className="admin-btn-secondary" disabled={!!busy} onClick={onRequest}>
         {busy === 'request-changes' ? <Loader2 className="w-4 h-4 animate-spin" /> : <MessageSquareWarning className="w-4 h-4" />}
         Request changes
       </button>
-      <button type="button" className="admin-btn-primary" disabled={!!busy} onClick={onApprove}>
+      <button type="button" className="admin-btn-primary" disabled={!!busy || !!approveTitle} title={approveTitle || undefined} onClick={onApprove}>
         {busy === 'approve' ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
         {publishLabel}
       </button>

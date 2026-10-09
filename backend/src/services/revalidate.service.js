@@ -1,4 +1,5 @@
 import { env } from '../config/env.js';
+import { logger } from '../utils/logger.js';
 
 /**
  * Tells the Next.js blog to drop cached pages after public content changes.
@@ -15,7 +16,7 @@ export function revalidateBlog({ slugs = [], tags = [] } = {}) {
     signal: AbortSignal.timeout(5000),
   })
     .then((res) => {
-      if (!res.ok) console.warn(`[revalidate] blog responded ${res.status}`);
+      if (!res.ok) logger.warn('revalidate', `blog responded ${res.status}`);
     })
-    .catch((err) => console.warn(`[revalidate] failed: ${err.message}`));
+    .catch((err) => logger.warn('revalidate', err.message));
 }

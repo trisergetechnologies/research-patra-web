@@ -9,6 +9,9 @@ import { can } from '../policies/post.policy.js';
 import { content, userRef } from './cms.serialize.js';
 import { sendNotice } from './mail.service.js';
 
+// Paused on purpose. Sign-in codes and the newsletter confirm still send. Flip this to turn review mail back on.
+const REVIEW_EMAILS = false;
+
 const isAdmin = (user) => user.role === ROLES.ADMIN;
 const isOwner = (user, post) => String(post.createdBy?._id ?? post.createdBy) === String(user._id);
 const active = (postId) => ({ post: postId, closedAt: null });
@@ -159,15 +162,17 @@ export async function recordSubmission(user, post) {
     round > 1
       ? `${user.name} resubmitted ${what} "${post.title}" for review.${total ? ` ${resolved} of ${total} comments resolved.` : ''}`
       : `${user.name} submitted ${what} "${post.title}" for review.`;
-  for (const a of admins) {
-    sendNotice({
-      to: a.email,
-      name: a.name,
-      subject: `${round > 1 ? 'Resubmitted' : 'Ready for review'}: ${post.title}`,
-      message: message.replace(/\s+/g, ' '),
-      ctaLabel: 'Open review',
-      ctaUrl: editUrl(post),
-    });
+  if (REVIEW_EMAILS) {
+    for (const a of admins) {
+      sendNotice({
+        to: a.email,
+        name: a.name,
+        subject: `${round > 1 ? 'Resubmitted' : 'Ready for review'}: ${post.title}`,
+        message: message.replace(/\s+/g, ' '),
+        ctaLabel: 'Open review',
+        ctaUrl: editUrl(post),
+      });
+    }
   }
   return round;
 }
@@ -177,7 +182,7 @@ export async function publishDrafts(user, post, note) {
   const res = await ReviewComment.updateMany({ ...active(post._id), author: user._id, status: C.DRAFT }, { $set: { status: C.OPEN } });
   const sent = res.modifiedCount;
   const writer = await User.findById(post.createdBy).select('name email isActive').lean();
-  if (writer?.isActive && String(writer._id) !== String(user._id)) {
+  if (REVIEW_EMAILS && writer?.isActive && String(writer._id) !== String(user._id)) {
     sendNotice({
       to: writer.email,
       name: writer.name,

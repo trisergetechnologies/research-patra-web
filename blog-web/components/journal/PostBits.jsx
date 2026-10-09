@@ -40,9 +40,13 @@ export function ArticleByline({ post }) {
       <span>
         <span className="j-by-line">
           By{' '}
-          <Link href={`/author/${post.author.slug}`} rel="author">
+          {post.author.slug ? (
+            <Link href={`/author/${post.author.slug}`} rel="author">
+              <b>{post.author.name}</b>
+            </Link>
+          ) : (
             <b>{post.author.name}</b>
-          </Link>
+          )}
           {post.author.credentials && <span className="j-by-cred">, {post.author.credentials}</span>}
         </span>
         <span className="j-by-sub">
@@ -62,7 +66,11 @@ export function ArticleByline({ post }) {
                   <path d="M20 6 9 17l-5-5" />
                 </svg>
                 Reviewed by{' '}
-                <Link href={`/author/${post.reviewedBy.slug}`}>{post.reviewedBy.name}</Link>
+                {post.reviewedBy.slug ? (
+                  <Link href={`/author/${post.reviewedBy.slug}`}>{post.reviewedBy.name}</Link>
+                ) : (
+                  post.reviewedBy.name
+                )}
                 {post.reviewedBy.role && <span className="j-by-muted">, {post.reviewedBy.role}</span>}
               </span>
             </>

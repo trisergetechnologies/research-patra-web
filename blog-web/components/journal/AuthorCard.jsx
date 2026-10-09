@@ -12,7 +12,7 @@ export default function AuthorCard({ author, headingLevel = 'h4', linkName = tru
       <Avatar author={author} large />
       <div className="j-author-body">
         <p className="j-eyebrow">Written by</p>
-        <Heading>{linkName ? <Link href={`/author/${author.slug}`} rel="author">{author.name}</Link> : author.name}</Heading>
+        <Heading>{linkName && author.slug ? <Link href={`/author/${author.slug}`} rel="author">{author.name}</Link> : author.name}</Heading>
         {(author.role || author.credentials) && (
           <div className="j-role">{[author.role, author.credentials].filter(Boolean).join(' · ')}</div>
         )}

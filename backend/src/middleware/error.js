@@ -1,5 +1,6 @@
 import { ApiError } from '../utils/ApiError.js';
 import { env } from '../config/env.js';
+import { logger } from '../utils/logger.js';
 
 export function notFound(req, res, next) {
   next(ApiError.notFound(`Route not found: ${req.method} ${req.originalUrl}`));
@@ -22,7 +23,10 @@ export function errorHandler(err, req, res, next) {
   }
 
   const status = err instanceof ApiError ? err.status : 500;
-  if (status >= 500) console.error(err);
+  if (status >= 500 && !err.logged) {
+    if (err instanceof ApiError) logger.error('http', `${req.method} ${req.originalUrl}: ${err.message}`);
+    else logger.error('http', `${req.method} ${req.originalUrl}`, err);
+  }
 
   res.status(status).json({
     message: status >= 500 && env.isProd ? 'Internal server error' : err.message,

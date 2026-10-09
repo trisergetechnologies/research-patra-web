@@ -102,6 +102,7 @@ export const adminUpdateAuthorSchema = z
   .object({ ...authorFields, slug: slug.max(80) })
   .partial()
   .strict();
+export const rejectAuthorSchema = z.object({ note: z.string().trim().min(1, 'Add a short note for the author').max(500) }).strict();
 
 // Multipart text fields arrive as strings.
 export const uploadMediaSchema = z.object({

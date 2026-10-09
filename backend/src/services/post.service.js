@@ -8,10 +8,11 @@ import { ApiError } from '../utils/ApiError.js';
 import { slugify, uniqueSlug } from '../utils/slug.js';
 import { readingTime, sanitizePostHtml, stripTags } from '../utils/html.js';
 import { can, editTarget } from '../policies/post.policy.js';
-import { ensureAuthorProfile } from './author.service.js';
+import { articleBlockReason, ensureAuthorProfile } from './author.service.js';
 import { audit } from './audit.service.js';
 import { revalidateBlog } from './revalidate.service.js';
 import * as review from './review.service.js';
+import { syncFingerprints } from './plagiarism/fingerprint.js';
 
 const isAdmin = (user) => user.role === ROLES.ADMIN;
 
@@ -231,12 +232,23 @@ export async function updatePost(user, post, data) {
   if (wasPublished && (target === 'live' || oldSlug || ['featured', 'author', 'reviewedBy'].some((k) => changed.includes(k)))) {
     publicChange(post, oldSlug ? [oldSlug] : []);
   }
+  await syncFingerprints(post);
   return post;
+}
+
+async function assertArticleAuthor(post, { publishing }) {
+  const authorId = post.author?._id ?? post.author;
+  const author = authorId
+    ? await AuthorProfile.findById(authorId).select('eligible deletedAt status published.displayName')
+    : null;
+  const message = articleBlockReason(author, { publishing });
+  if (message) throw ApiError.badRequest(message);
 }
 
 export async function submitPost(user, post, version) {
   assertVersion(post, version);
   assertCan(user, 'submit', post);
+  await assertArticleAuthor(post, { publishing: false });
   await review.assertNoOpenMustFix(post);
 
   if (post.status === S.PUBLISHED) {
@@ -253,12 +265,14 @@ export async function submitPost(user, post, version) {
   await post.save();
   const round = await review.recordSubmission(user, post);
   await audit(user, 'post.submit', 'Post', post._id, { revision: post.status === S.PUBLISHED, round });
+  await syncFingerprints(post);
   return post;
 }
 
 export async function approvePost(user, post, version) {
   assertVersion(post, version);
   assertCan(user, 'approve', post);
+  await assertArticleAuthor(post, { publishing: true });
 
   const mergedRevision = !!post.pendingRevision;
   if (post.pendingRevision) {
@@ -282,6 +296,7 @@ export async function approvePost(user, post, version) {
   await review.closeCycle(post);
   await audit(user, 'post.publish', 'Post', post._id, { mergedRevision });
   publicChange(post);
+  await syncFingerprints(post);
   return post;
 }
 
@@ -303,6 +318,7 @@ export async function requestChanges(user, post, version, note = '') {
   await post.save();
   const comments = await review.publishDrafts(user, post, note);
   await audit(user, 'post.request_changes', 'Post', post._id, { note, comments });
+  await syncFingerprints(post);
   return post;
 }
 
@@ -314,6 +330,7 @@ export async function discardRevision(user, post, version) {
   await post.save();
   await review.closeCycle(post);
   await audit(user, 'post.discard_revision', 'Post', post._id);
+  await syncFingerprints(post);
   return post;
 }
 
@@ -326,6 +343,7 @@ export async function unpublishPost(user, post, version) {
   await post.save();
   await audit(user, 'post.unpublish', 'Post', post._id);
   publicChange(post);
+  await syncFingerprints(post);
   return post;
 }
 
@@ -340,6 +358,7 @@ export async function archivePost(user, post, version) {
   await review.closeCycle(post);
   await audit(user, 'post.archive', 'Post', post._id);
   if (wasPublished) publicChange(post);
+  await syncFingerprints(post);
   return post;
 }
 
@@ -352,6 +371,7 @@ export async function restorePost(user, post, version) {
   post.updatedBy = user._id;
   await post.save();
   await audit(user, 'post.restore', 'Post', post._id);
+  await syncFingerprints(post);
   return post;
 }
 
@@ -366,5 +386,6 @@ export async function deletePost(user, post, version) {
   await review.closeCycle(post);
   await audit(user, 'post.delete', 'Post', post._id);
   if (wasPublished) publicChange(post);
+  await syncFingerprints(post);
   return post;
 }

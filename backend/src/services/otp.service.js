@@ -3,6 +3,7 @@ import { env } from '../config/env.js';
 import { LoginCode } from '../models/LoginCode.js';
 import { ApiError } from '../utils/ApiError.js';
 import { sendLoginCode } from './mail.service.js';
+import { logger } from '../utils/logger.js';
 
 export const OTP_TTL_MINUTES = 10;
 export const OTP_RESEND_SECONDS = 60;
@@ -35,8 +36,10 @@ export async function issueLoginCode(user) {
     await sendLoginCode({ to: email, name: user.name, code, minutes: OTP_TTL_MINUTES });
   } catch (err) {
     await doc.deleteOne();
-    console.error('[mail] Failed to send login code:', err.message);
-    throw new ApiError(503, 'Could not send the code right now. Try again in a minute.');
+    logger.error('mail', 'login code failed', err);
+    const apiErr = new ApiError(503, 'Could not send the code right now. Try again in a minute.');
+    apiErr.logged = true;
+    throw apiErr;
   }
 }
 

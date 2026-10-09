@@ -33,4 +33,5 @@ export const ACTION_LABELS = {
   'post.archive': 'archived',
   'post.restore': 'restored',
   'post.delete': 'deleted',
+  'post.plagiarism': 'sent for a plagiarism check',
 };

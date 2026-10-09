@@ -1,4 +1,5 @@
 import { permissionsFor } from '../policies/post.policy.js';
+import { isPublicAuthor } from './author.service.js';
 import { mediaUrl, serializeMedia } from './media.service.js';
 
 const id = (v) => (v ? String(v._id ?? v) : null);
@@ -26,6 +27,11 @@ export const serializeAuthor = (a) =>
           scholar: a.links?.scholar ?? '',
         },
         user: id(a.user),
+        status: a.status ?? 'approved',
+        reviewNote: a.reviewNote ?? '',
+        deletedAt: a.deletedAt ?? null,
+        eligible: !a.deletedAt && (!!a.eligible || a.status == null),
+        publicSlug: isPublicAuthor(a) ? a.published?.slug || a.slug : null,
       }
     : null;
 
