@@ -1,9 +1,11 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Download, Loader2 } from 'lucide-react';
 import { cmsApi, errorMessage } from '../api/client';
 import { useToast } from '../components/ui/toastContext';
 import { ErrorBanner, PageHeader, Skeleton } from '../components/ui/States';
 import { overlapPercent, plagiarismLabel, plagiarismTone, startsScan, verdictSentence } from '../lib/plagiarism';
+import { downloadPlagiarismPdf } from '../lib/plagiarismPdf';
 
 function Figure({ label, value, hint }) {
   return (
@@ -57,47 +59,50 @@ function Source({ source }) {
 }
 
 export default function PlagiarismReport() {
-  const { id } = useParams();
+  const { id, scanId } = useParams();
+  const navigate = useNavigate();
   const toast = useToast();
   const [data, setData] = useState(null);
   const [error, setError] = useState('');
-  const [loadedId, setLoadedId] = useState(null);
+  const [loadedKey, setLoadedKey] = useState(null);
   const [busy, setBusy] = useState(false);
-  const loading = loadedId !== id;
+  const [pdfBusy, setPdfBusy] = useState(false);
+  const key = scanId || id;
+  const loading = loadedKey !== key;
 
   const load = useCallback(() => {
-    return cmsApi
-      .getPlagiarism(id)
+    const request = scanId ? cmsApi.getPlagiarismScan(scanId) : cmsApi.getPlagiarism(id);
+    return request
       .then((next) => {
         setData(next);
         setError('');
-        setLoadedId(id);
+        setLoadedKey(key);
       })
       .catch((err) => {
         setError(errorMessage(err));
-        setLoadedId(id);
+        setLoadedKey(key);
       });
-  }, [id]);
+  }, [id, scanId, key]);
 
   useEffect(() => {
     let cancel = false;
-    cmsApi
-      .getPlagiarism(id)
+    const request = scanId ? cmsApi.getPlagiarismScan(scanId) : cmsApi.getPlagiarism(id);
+    request
       .then((next) => {
         if (cancel) return;
         setData(next);
         setError('');
-        setLoadedId(id);
+        setLoadedKey(key);
       })
       .catch((err) => {
         if (cancel) return;
         setError(errorMessage(err));
-        setLoadedId(id);
+        setLoadedKey(key);
       });
     return () => {
       cancel = true;
     };
-  }, [id]);
+  }, [id, scanId, key]);
 
   const status = data?.summary?.status;
   useEffect(() => {
@@ -106,30 +111,56 @@ export default function PlagiarismReport() {
     return () => clearInterval(timer);
   }, [status, load]);
 
+  const summary = data?.summary;
+  const report = data?.report;
+  const article = data?.article;
+
   const start = () => {
+    const postId = article?.id || id;
+    if (!postId) return;
     setBusy(true);
     cmsApi
-      .startPlagiarism(id)
-      .then((next) => setData(next))
+      .startPlagiarism(postId)
+      .then((next) => {
+        if (scanId) navigate(`/admin/posts/${postId}/plagiarism`);
+        else setData(next);
+      })
       .catch((err) => toast.error(errorMessage(err)))
       .finally(() => setBusy(false));
   };
-
-  const summary = data?.summary;
-  const report = data?.report;
   const waiting = status === 'queued' || status === 'running';
+  const canPdf = !!report && !waiting;
   const verdict = summary?.status === 'complete' ? summary.verdict : summary?.status === 'incomplete' || summary?.status === 'failed' ? 'incomplete' : report?.verdict;
+
+  const download = () => {
+    setPdfBusy(true);
+    downloadPlagiarismPdf({ article, summary, report })
+      .catch((err) => toast.error(errorMessage(err)))
+      .finally(() => setPdfBusy(false));
+  };
 
   return (
     <div className="max-w-3xl">
       <PageHeader
         title="Plagiarism"
         actions={
-          <Link to={`/admin/posts/${id}`} className="text-sm text-muted hover:underline">
-            Back to article
-          </Link>
+          <>
+            {canPdf && (
+              <button type="button" className="admin-btn-secondary" disabled={pdfBusy} onClick={download}>
+                {pdfBusy ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+                Download PDF
+              </button>
+            )}
+            {article?.exists && (
+              <Link to={`/admin/posts/${article.id}`} className="text-sm text-muted hover:underline">
+                Back to article
+              </Link>
+            )}
+          </>
         }
-      />
+      >
+        {article?.title && <p className="mt-1 text-sm text-muted">{article.title}</p>}
+      </PageHeader>
       <ErrorBanner message={error} onRetry={load} />
       {loading ? (
         <div className="space-y-3">

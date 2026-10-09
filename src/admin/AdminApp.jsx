@@ -13,6 +13,7 @@ import Profile from './pages/Profile';
 import Posts from './pages/Posts';
 import ReviewQueue from './pages/ReviewQueue';
 import PlagiarismReport from './pages/PlagiarismReport';
+import PlagiarismList from './pages/PlagiarismList';
 import Media from './pages/Media';
 import Categories from './pages/Categories';
 import Tags from './pages/Tags';
@@ -51,6 +52,8 @@ export default function AdminApp() {
               <Route path="author" element={<AuthorProfile />} />
               <Route path="profile" element={<Profile />} />
               <Route element={<ProtectedRoute roles={[ROLES.ADMIN]} />}>
+                <Route path="plagiarism" element={<PlagiarismList />} />
+                <Route path="plagiarism/:scanId" element={<PlagiarismReport />} />
                 <Route path="posts/:id/plagiarism" element={<PlagiarismReport />} />
                 <Route path="review" element={<ReviewQueue />} />
                 <Route path="categories" element={<Categories />} />
