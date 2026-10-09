@@ -10,11 +10,11 @@ export const serializeCategory = (c) =>
 export const serializeTag = (t) => (t && t.name ? { id: id(t), name: t.name, slug: t.slug } : null);
 
 export const serializeAuthor = (a) =>
-  a && a.displayName
+  a && (a.displayName || a.slug)
     ? {
         id: id(a),
         slug: a.slug,
-        displayName: a.displayName,
+        displayName: a.displayName || '',
         roleTitle: a.roleTitle ?? '',
         bio: a.bio ?? '',
         avatar: serializeMedia(a.avatar),

@@ -858,7 +858,7 @@ export default function PostEditor() {
                 <select id="author" className="admin-input" value={form.author?.id || ''} disabled={readOnly} onChange={(e) => set({ author: authors.find((a) => a.id === e.target.value) || null })}>
                   {!form.author && <option value="">You</option>}
                   {authors.map((a) => (
-                    <option key={a.id} value={a.id}>{a.displayName}{a.deletedAt ? ' · Removed' : ''}</option>
+                    <option key={a.id} value={a.id}>{a?.displayName}{a?.deletedAt ? ' · Removed' : ''}</option>
                   ))}
                 </select>
               </div>
@@ -874,7 +874,7 @@ export default function PostEditor() {
                   {authors
                     .filter((a) => a.id !== form.author?.id)
                     .map((a) => (
-                      <option key={a.id} value={a.id}>{a.displayName}{a.roleTitle ? ` · ${a.roleTitle}` : ''}</option>
+                      <option key={a.id} value={a.id}>{a?.displayName}{a?.roleTitle ? ` · ${a.roleTitle}` : ''}</option>
                     ))}
                 </select>
               </div>

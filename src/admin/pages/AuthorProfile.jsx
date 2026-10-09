@@ -41,14 +41,14 @@ const EMPTY_FORM = {
 };
 
 const fromAuthor = (a) => ({
-  displayName: a.displayName,
-  roleTitle: a.roleTitle,
-  bio: a.bio,
-  avatar: a.avatar,
-  slug: a.slug,
-  credentials: a.credentials ?? '',
-  expertise: (a.expertise ?? []).join(', '),
-  links: { website: '', linkedin: '', orcid: '', scholar: '', ...a.links },
+  displayName: a?.displayName || '',
+  roleTitle: a?.roleTitle || '',
+  bio: a?.bio || '',
+  avatar: a?.avatar ?? null,
+  slug: a?.slug || '',
+  credentials: a?.credentials ?? '',
+  expertise: (a?.expertise ?? []).join(', '),
+  links: { website: '', linkedin: '', orcid: '', scholar: '', ...(a?.links || {}) },
 });
 
 const profileLabel = (a) => {
@@ -335,7 +335,7 @@ function AllAuthors() {
             <span className="w-8 h-8 rounded-full bg-soft flex items-center justify-center text-muted"><UserRound className="w-4 h-4" /></span>
           )}
           <div className="min-w-0">
-            <p className="font-medium truncate">{a.displayName}</p>
+            <p className="font-medium truncate">{a?.displayName}</p>
             <p className="text-xs text-muted truncate">{a.roleTitle || a.email}</p>
           </div>
         </div>
@@ -414,7 +414,7 @@ function EditAuthor({ author, onClose, onSaved }) {
   };
 
   return (
-    <Modal open onClose={onClose} title={`Edit ${current.displayName}`} size="lg">
+    <Modal open onClose={onClose} title={`Edit ${current?.displayName || 'author'}`} size="lg">
       <form onSubmit={submit} className="space-y-5">
         <p className="text-sm text-muted">Profile status: {profileLabel(current)}. Saving here does not publish it. Approve does.</p>
         {current.eligible && current.status !== 'approved' && !removed && <p className="text-sm text-amber-800 dark:text-amber-200">{MSG.live}</p>}

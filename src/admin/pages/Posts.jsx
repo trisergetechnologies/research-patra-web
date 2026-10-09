@@ -101,7 +101,7 @@ export default function Posts() {
             <select className="admin-input" value={filters.author} onChange={(e) => setFilters({ author: e.target.value })} aria-label="Author">
               <option value="">All authors</option>
               {authors.map((a) => (
-                <option key={a.id} value={a.id}>{a.displayName}</option>
+                <option key={a.id} value={a.id}>{a?.displayName}</option>
               ))}
             </select>
           )}
