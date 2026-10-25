@@ -2,8 +2,10 @@ import { env } from '../../config/env.js';
 import { PlagBudget, PlagPage, PlagScan } from '../../models/Plagiarism.js';
 import { LIMITS } from './limits.js';
 import { compareAgainst, withoutSelf } from './match.js';
-import { searchDuckDuckGo } from './search.js';
+import { searchOpenAlex } from './openalex.js';
+import { consumeMonthCheck, getMonthQuota, releaseMonthCheck } from './quota.js';
 import { decideEnqueue, staleAction } from './status.js';
+import { searchTavily, tavilyConfigured } from './tavily.js';
 import { prepareArticle, scanSource } from './text.js';
 import { decideVerdict } from './verdict.js';
 import { fetchHtmlPage, runWebStage } from './web.js';
@@ -25,7 +27,7 @@ export function ownHosts() {
   return hosts;
 }
 
-export async function enqueueScan(post) {
+export async function enqueueScan(post, { userId } = {}) {
   const source = scanSource(post);
   const article = prepareArticle(source);
   const existing = await PlagScan.find({
@@ -36,20 +38,34 @@ export async function enqueueScan(post) {
     .sort({ createdAt: -1 })
     .lean();
   const decision = decideEnqueue(existing);
-  if (decision.action === 'keep') return { scan: decision.scan, created: false };
+  const quota = userId ? await getMonthQuota(userId) : null;
+  if (decision.action === 'keep') return { scan: decision.scan, created: false, quota };
 
-  const scan = await PlagScan.create({
-    postId: post._id,
-    target: source.target,
-    contentHash: article.hash,
-    status: 'queued',
-    snapshot: {
-      title: source.title,
-      contentHtml: source.contentHtml,
-      keyTakeaways: source.keyTakeaways,
-    },
-  });
-  return { scan: scan.toObject(), created: true };
+  if (userId) {
+    const spent = await consumeMonthCheck(userId);
+    if (!spent) {
+      const current = await getMonthQuota(userId);
+      return { scan: null, created: false, quota: current, quotaExceeded: true };
+    }
+  }
+
+  try {
+    const scan = await PlagScan.create({
+      postId: post._id,
+      target: source.target,
+      contentHash: article.hash,
+      status: 'queued',
+      snapshot: {
+        title: source.title,
+        contentHtml: source.contentHtml,
+        keyTakeaways: source.keyTakeaways,
+      },
+    });
+    return { scan: scan.toObject(), created: true, quota: userId ? await getMonthQuota(userId) : quota };
+  } catch (err) {
+    if (userId) await releaseMonthCheck(userId);
+    throw err;
+  }
 }
 
 export async function latestScan(postId) {
@@ -105,14 +121,18 @@ export async function processScan(scan) {
   const corpus = await loadCorpus(scan.postId);
   const internal = compareAgainst(article, withoutSelf(corpus, scan.postId));
   const hosts = ownHosts();
+  const skipAcademic = internal.overlap >= LIMITS.strongOverlap;
   const web = await runWebStage({
     words: article.words,
-    search: (query) => searchDuckDuckGo(query),
+    title: scan.snapshot?.title || '',
+    search: (query) => searchTavily(query),
+    academicSearch: skipAcademic ? null : (args) => searchOpenAlex(args),
     takeCached,
     consume: consumeFetch,
     fetchPage: (url) => fetchHtmlPage(url, globalThis.fetch, hosts),
     savePage,
     ownHosts: hosts,
+    skipAcademic,
     limits: LIMITS,
   });
   const external = compareAgainst(article, webSources(web.pages));
@@ -128,8 +148,11 @@ export async function processScan(scan) {
     web: {
       overlap: external.overlap,
       queries: web.queries,
+      tavilyCredits: web.tavilyCredits || 0,
+      openAlexHits: web.openAlexHits || 0,
       fetched: web.fetched,
       cached: web.cached,
+      snippets: web.snippets || 0,
       failed: web.failed,
       complete: web.complete,
     },

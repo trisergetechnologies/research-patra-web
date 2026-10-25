@@ -3,10 +3,11 @@ import { LIMITS } from './limits.js';
 import { pickQueries } from './text.js';
 import { selectUrls } from './search.js';
 
-const INCOMPLETE_SEARCH = 'Web search did not respond, so this check is incomplete.';
-const INCOMPLETE_TEXT = 'There was not enough distinctive text to search the web.';
-const INCOMPLETE_BUDGET = 'The daily page limit was reached before the web check finished.';
-const INCOMPLETE_PAGES = 'The web pages could not be opened, so this check is incomplete.';
+export const INCOMPLETE_SEARCH = 'Web search did not respond, so this check is incomplete.';
+export const INCOMPLETE_TEXT = 'There was not enough distinctive text to search the web.';
+export const INCOMPLETE_BUDGET = 'The daily page limit was reached before the web check finished.';
+export const INCOMPLETE_PAGES = 'The web pages could not be opened, so this check is incomplete.';
+export const INCOMPLETE_EXTERNAL = 'External verification incomplete. No usable web or academic sources were found.';
 
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -76,7 +77,7 @@ export async function fetchHtmlPage(url, fetchImpl = globalThis.fetch, ownHosts 
     signal: AbortSignal.timeout(LIMITS.timeoutMs),
     headers: {
       'User-Agent': 'ResearchPatraBot/1.0 (+https://researchpatra.com)',
-      Accept: 'text/html',
+      Accept: 'text/html,application/xhtml+xml',
     },
   });
   if (!res.ok) throw new Error(`Fetch failed (${res.status})`);
@@ -86,43 +87,134 @@ export async function fetchHtmlPage(url, fetchImpl = globalThis.fetch, ownHosts 
     return { skip: true };
   }
   const type = res.headers.get('content-type') || '';
-  if (!/text\/html|application\/xhtml/i.test(type)) return { skip: true };
+  if (!/text\/html|application\/xhtml|text\/plain|application\/pdf/i.test(type) && type) {
+    // Allow empty content-type; reject known non-text binaries later via empty strip.
+  }
+  if (/application\/pdf/i.test(type)) return { skip: true };
   const html = await readLimited(res, LIMITS.maxBytes);
   const text = stripTags(html);
   if (!text) return { skip: true };
   return { text, title: htmlTitle(html) };
 }
 
+function asHits(raw) {
+  if (!Array.isArray(raw)) return [];
+  return raw
+    .map((item) => {
+      if (typeof item === 'string') {
+        try {
+          const url = new URL(item).toString();
+          return { url, host: new URL(url).host.toLowerCase(), title: '', text: '' };
+        } catch {
+          return null;
+        }
+      }
+      if (!item?.url) return null;
+      try {
+        const url = new URL(item.url).toString();
+        return {
+          url,
+          host: item.host || new URL(url).host.toLowerCase(),
+          title: item.title || '',
+          text: item.text || '',
+        };
+      } catch {
+        return null;
+      }
+    })
+    .filter(Boolean);
+}
+
+function usableText(text, minChars = LIMITS.minSnippetChars) {
+  return typeof text === 'string' && text.trim().length >= minChars;
+}
+
 /**
- * Search, then fetch a bounded set of pages.
- * `consume` returns false when the daily cap is spent.
- * A page is retried `limits.retries` times, then counted as failed.
+ * Search (web + optional academic), then fetch a bounded set of pages.
+ * Usable snippet text from search counts as coverage without a fetch.
+ * Zero usable pages always means incomplete — never a clean external result.
  */
 export async function runWebStage({
   words,
+  title = '',
   search,
+  academicSearch,
   takeCached,
   consume,
   fetchPage,
   savePage,
   ownHosts,
+  skipAcademic = false,
   limits = LIMITS,
 }) {
   const queries = pickQueries(words, limits.queries);
-  const empty = { queries: queries.length, fetched: 0, failed: 0, cached: 0, pages: [] };
+  const empty = {
+    queries: queries.length,
+    fetched: 0,
+    failed: 0,
+    cached: 0,
+    snippets: 0,
+    tavilyCredits: 0,
+    openAlexHits: 0,
+    pages: [],
+  };
   if (!queries.length) return { ...empty, complete: false, reason: INCOMPLETE_TEXT };
 
   const found = [];
+  const snippetPages = [];
+  const seenUrls = new Set();
+  let tavilyCredits = 0;
+  let openAlexHits = 0;
+  let queriesRun = 0;
+
+  const addHits = (hits, { countSnippet = true } = {}) => {
+    for (const hit of asHits(hits)) {
+      if (ownHosts?.has?.(hit.host)) continue;
+      if (seenUrls.has(hit.url)) {
+        if (countSnippet && usableText(hit.text) && !snippetPages.some((p) => p.url === hit.url)) {
+          snippetPages.push({ ...hit, text: hit.text, title: hit.title || hit.host });
+        }
+        continue;
+      }
+      seenUrls.add(hit.url);
+      found.push(hit.url);
+      if (countSnippet && usableText(hit.text)) {
+        snippetPages.push({ ...hit, text: hit.text, title: hit.title || hit.host });
+      }
+    }
+  };
+
   for (const query of queries) {
     try {
-      found.push(...(await search(query)));
+      const packed = await search(query);
+      const hits = Array.isArray(packed) ? packed : packed?.results;
+      tavilyCredits += Number(packed?.credits) || 0;
+      addHits(hits);
+      queriesRun += 1;
+      if (queriesRun >= (limits.earlyStopQueries || 2) && snippetPages.length >= (limits.earlyStopPages || 3)) break;
     } catch {
-      return { ...empty, complete: false, reason: INCOMPLETE_SEARCH };
+      return { ...empty, queries: queriesRun || queries.length, complete: false, reason: INCOMPLETE_SEARCH };
     }
   }
 
-  const planned = selectUrls(found, { limit: limits.pages, perHost: limits.perHost, skipHosts: ownHosts });
-  const pages = [];
+  if (!skipAcademic && academicSearch) {
+    try {
+      const academic = await academicSearch({ title, words });
+      const hits = Array.isArray(academic) ? academic : academic?.results;
+      openAlexHits = Number(academic?.hits) || asHits(hits).length;
+      addHits(hits, { countSnippet: false });
+    } catch {
+      // Academic discovery is additive; a failure does not wipe Tavily pages already found.
+    }
+  }
+
+  const already = new Set(snippetPages.map((p) => p.url));
+  const planned = selectUrls(
+    found.filter((url) => !already.has(url)),
+    { limit: Math.max(0, (limits.pages || 12) - snippetPages.length), perHost: limits.perHost, skipHosts: ownHosts }
+  );
+
+  const pages = [...snippetPages];
   let fetched = 0;
   let failed = 0;
   let cached = 0;
@@ -133,7 +225,7 @@ export async function runWebStage({
     const cachedPage = await takeCached(item.url);
     if (cachedPage?.text) {
       cached += 1;
-      pages.push({ ...item, text: cachedPage.text, title: cachedPage.title || '' });
+      pages.push({ ...item, text: cachedPage.text, title: cachedPage.title || item.title || '' });
       return;
     }
 
@@ -160,25 +252,29 @@ export async function runWebStage({
 
     if (page?.text) {
       fetched += 1;
-      pages.push({ ...item, text: page.text, title: page.title || '' });
+      pages.push({ ...item, text: page.text, title: page.title || item.title || '' });
       if (savePage) await savePage(item, page);
       return;
     }
     failed += 1;
   });
 
-  if (!stopped && planned.length > 0 && pages.length === 0) {
+  const snippets = snippetPages.length;
+  if (!stopped && pages.length === 0) {
     stopped = true;
-    reason = INCOMPLETE_PAGES;
+    reason = planned.length > 0 ? INCOMPLETE_PAGES : INCOMPLETE_EXTERNAL;
   }
 
   return {
-    complete: !stopped,
-    reason,
-    queries: queries.length,
+    complete: !stopped && pages.length > 0,
+    reason: stopped ? reason : pages.length ? '' : INCOMPLETE_EXTERNAL,
+    queries: queriesRun || queries.length,
     fetched,
     failed,
     cached,
+    snippets,
+    tavilyCredits,
+    openAlexHits,
     pages,
   };
 }

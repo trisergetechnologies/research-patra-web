@@ -48,4 +48,8 @@ export const env = {
   seedAdminName: process.env.SEED_ADMIN_NAME || 'Research Patra',
   seedStaffEmail: (process.env.SEED_STAFF_EMAIL || 'vaibhavkpandey13@gmail.com').toLowerCase(),
   seedStaffName: process.env.SEED_STAFF_NAME || 'Vaibhav Pandey',
+  // External plagiarism discovery. Tavily is required for a web check; OpenAlex is optional academic OA.
+  tavilyApiKey: process.env.TAVILY_API_KEY || '',
+  openAlexApiKey: process.env.OPENALEX_API_KEY || '',
+  openAlexMailto: process.env.OPENALEX_MAILTO || '',
 };

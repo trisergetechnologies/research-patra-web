@@ -7,12 +7,29 @@ import { plagiarismDot, plagiarismLabel, plagiarismTone, startsScan } from '../l
 export default function PlagiarismChip({ postId, summary, dirty, onChange, poll = false }) {
   const toast = useToast();
   const [busy, setBusy] = useState(false);
+  const [quota, setQuota] = useState(null);
   const onChangeRef = useRef(onChange);
   const status = summary?.status || 'none';
+  const canStart = startsScan(summary);
+  const outOfChecks = quota != null && quota.remaining <= 0;
 
   useEffect(() => {
     onChangeRef.current = onChange;
   }, [onChange]);
+
+  useEffect(() => {
+    if (!canStart) return undefined;
+    let cancel = false;
+    cmsApi
+      .plagiarismQuota()
+      .then((data) => {
+        if (!cancel) setQuota(data.quota);
+      })
+      .catch(() => {});
+    return () => {
+      cancel = true;
+    };
+  }, [canStart, postId]);
 
   useEffect(() => {
     if (!poll || (status !== 'queued' && status !== 'running')) return undefined;
@@ -26,19 +43,31 @@ export default function PlagiarismChip({ postId, summary, dirty, onChange, poll 
   const className = `inline-flex items-center gap-1.5 text-xs font-medium ${plagiarismTone(busy ? { status: 'queued' } : summary)}`;
   const dot = <span className={`h-1.5 w-1.5 rounded-full ${busy ? 'bg-amber-500' : plagiarismDot(summary)} ${status === 'running' ? 'animate-pulse' : ''}`} />;
 
-  if (startsScan(summary)) {
+  if (canStart) {
     return (
       <button
         type="button"
         className={`${className} hover:underline underline-offset-2 disabled:no-underline disabled:opacity-60`}
-        disabled={busy || dirty}
-        title={dirty ? 'Save the article first' : 'Check this article for overlapping passages'}
+        disabled={busy || dirty || outOfChecks}
+        title={
+          dirty
+            ? 'Save the article first'
+            : outOfChecks
+              ? `Monthly limit reached (${quota.used} of ${quota.limit}). Resets ${quota.resetMonth}.`
+              : 'Check this article for overlapping passages'
+        }
         onClick={() => {
           setBusy(true);
           cmsApi
             .startPlagiarism(postId)
-            .then((data) => onChangeRef.current?.(data.summary))
-            .catch((err) => toast.error(errorMessage(err)))
+            .then((data) => {
+              onChangeRef.current?.(data.summary);
+              if (data.quota) setQuota(data.quota);
+            })
+            .catch((err) => {
+              toast.error(errorMessage(err));
+              if (err?.data?.details?.quota) setQuota(err.data.details.quota);
+            })
             .finally(() => setBusy(false));
         }}
       >

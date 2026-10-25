@@ -76,12 +76,21 @@ export default function PlagiarismList() {
     { key: 'when', header: 'When', render: (row) => <span className="text-muted whitespace-nowrap">{timeAgo(row.at)}</span> },
   ];
 
+  const quota = list.meta?.quota;
+
   return (
     <div className="max-w-6xl">
       <PageHeader
         title="Plagiarism"
         info={<InfoTip side="bottom">Every plagiarism check, including ones still running. Open a finished check to download it.</InfoTip>}
-      />
+      >
+        {quota && (
+          <p className="mt-1 text-sm text-muted">
+            {quota.used} of {quota.limit} checks this month
+            {quota.remaining <= 0 ? ` · Resets ${quota.resetMonth}` : ''}
+          </p>
+        )}
+      </PageHeader>
 
       <div className="space-y-3 mb-4">
         <FilterChips options={statusOptions} value={filters.status} onChange={(status) => setFilters({ status })} />

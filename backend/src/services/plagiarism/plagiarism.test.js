@@ -1,11 +1,14 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { compareAgainst, containment, passagesForSource, withoutSelf } from './match.js';
+import { normalizeOpenAlexWorks, oaUrlsFromWork } from './openalex.js';
+import { currentMonth, nextMonthLabel } from './quota.js';
 import { parseSearchResults, selectUrls } from './search.js';
 import { chipFor, decideEnqueue, staleAction } from './status.js';
+import { normalizeTavilyResults, searchTavily } from './tavily.js';
 import { pickQueries, prepareArticle } from './text.js';
 import { decideVerdict } from './verdict.js';
-import { runWebStage } from './web.js';
+import { INCOMPLETE_EXTERNAL, runWebStage } from './web.js';
 
 const words = (text) => text.split(/\s+/).filter(Boolean);
 
@@ -24,11 +27,11 @@ test('normalization and hash ignore tags and extra space', () => {
 
 test('queries are spread through a long article and capped', () => {
   const body = Array.from({ length: 400 }, (_, i) => `uniqueword${i}`);
-  const queries = pickQueries(body, 12);
-  assert.equal(queries.length, 12);
+  const queries = pickQueries(body, 5);
+  assert.equal(queries.length, 5);
   assert.ok(queries.every((query) => query.startsWith('"') && query.endsWith('"')));
-  assert.notEqual(queries[0], queries[11]);
-  assert.deepEqual(pickQueries(['too', 'short'], 12), []);
+  assert.notEqual(queries[0], queries[4]);
+  assert.deepEqual(pickQueries(['too', 'short'], 5), []);
 });
 
 test('overlap, passages, quotations, and same-post exclusion', () => {
@@ -126,7 +129,7 @@ test('a stuck scan is retried once and then marked incomplete', () => {
   assert.equal(staleAction({ status: 'queued', startedAt: stuck.startedAt, requeues: 0 }, now), null);
 });
 
-const limits = { queries: 12, pages: 24, perHost: 4, concurrency: 2, gapMs: 0, retries: 2 };
+const limits = { queries: 5, pages: 12, perHost: 3, concurrency: 2, gapMs: 0, retries: 2, earlyStopQueries: 2, earlyStopPages: 3, minSnippetChars: 40 };
 
 function longWords() {
   return Array.from({ length: 48 }, (_, i) => `uniqueword${i}`);
@@ -183,7 +186,7 @@ test('fetch limits, host caps, and retries are enforced', async () => {
   assert.equal(seen.some((url) => url.includes('researchpatra.com')), false);
   const beta = seen.filter((url) => url.includes('beta.example/p'));
   assert.ok(beta.length >= 3);
-  assert.equal(result.fetched + result.cached, result.pages.length);
+  assert.equal(result.fetched + result.cached + result.snippets, result.pages.length);
 });
 
 test('a search that does not respond is an incomplete check', async () => {
@@ -201,4 +204,116 @@ test('a search that does not respond is an incomplete check', async () => {
   assert.equal(result.complete, false);
   assert.match(result.reason, /Web search did not respond/);
   assert.equal(decideVerdict({ webComplete: result.complete, internalOverlap: 0, webOverlap: 0, longestRun: 0 }), 'incomplete');
+});
+
+test('empty search results are incomplete, never clear', async () => {
+  const result = await runWebStage({
+    words: longWords(),
+    ownHosts: new Set(),
+    limits,
+    search: async () => ({ results: [], credits: 1 }),
+    takeCached: async () => null,
+    consume: async () => true,
+    fetchPage: async () => ({ text: 'unused' }),
+  });
+  assert.equal(result.complete, false);
+  assert.equal(result.pages.length, 0);
+  assert.equal(result.reason, INCOMPLETE_EXTERNAL);
+  assert.equal(decideVerdict({ webComplete: result.complete, internalOverlap: 0, webOverlap: 0, longestRun: 0 }), 'incomplete');
+});
+
+test('tavily raw content counts as coverage and finds overlap', async () => {
+  const copied = Array.from({ length: 50 }, (_, i) => `copiedphrase${i}`).join(' ');
+  const article = prepareArticle({ title: 'Doc', contentHtml: `<p>${copied}</p>`, keyTakeaways: [] });
+  const snippet = `prefix text ${copied} trailing words for padding here`;
+  const result = await runWebStage({
+    words: article.words,
+    ownHosts: new Set(),
+    limits: { ...limits, minSnippetChars: 40 },
+    search: async () => ({
+      credits: 1,
+      results: [{ url: 'https://source.example/paper', title: 'Source', text: snippet }],
+    }),
+    takeCached: async () => null,
+    consume: async () => true,
+    fetchPage: async () => ({ text: 'should not fetch' }),
+  });
+  assert.equal(result.complete, true);
+  assert.equal(result.snippets, 1);
+  assert.ok(result.pages.length >= 1);
+  const external = compareAgainst(article, result.pages.map((page) => {
+    const prepared = prepareArticle({ title: '', contentHtml: page.text, keyTakeaways: [] });
+    return { kind: 'web', title: page.title, url: page.url, host: page.host, hash: prepared.hash, sh5: prepared.sh5, sh8: prepared.sh8 };
+  }));
+  assert.ok(external.overlap > 0.2);
+  const verdict = decideVerdict({ webComplete: true, internalOverlap: 0, webOverlap: external.overlap, longestRun: external.longest });
+  assert.ok(verdict === 'review' || verdict === 'strong');
+});
+
+test('openalex oa urls merge and prefer landings', () => {
+  const work = {
+    display_name: 'Climate Study',
+    open_access: { oa_url: 'https://repo.example/oa' },
+    primary_location: { landing_page_url: 'https://journal.example/html', pdf_url: 'https://journal.example/file.pdf' },
+    locations: [{ is_oa: true, landing_page_url: 'https://journal.example/html', pdf_url: 'https://journal.example/file.pdf' }],
+  };
+  assert.equal(oaUrlsFromWork(work)[0], 'https://journal.example/html');
+  const normalized = normalizeOpenAlexWorks({ results: [work] });
+  assert.ok(normalized.some((row) => row.url === 'https://journal.example/html'));
+  assert.equal(normalized[0].title, 'Climate Study');
+});
+
+test('openalex hits are merged into the web stage', async () => {
+  const result = await runWebStage({
+    words: longWords(),
+    title: 'Climate change research',
+    ownHosts: new Set(),
+    limits,
+    search: async () => ({ results: [], credits: 1 }),
+    academicSearch: async () => ({
+      hits: 1,
+      results: [{ url: 'https://academic.example/article', title: 'Paper', text: '' }],
+    }),
+    takeCached: async () => null,
+    consume: async () => true,
+    fetchPage: async (url) => ({ text: `Fetched body for ${url} uniqueword0 uniqueword1 and more distinctive academic wording here`, title: 'Paper' }),
+  });
+  assert.equal(result.openAlexHits, 1);
+  assert.equal(result.complete, true);
+  assert.ok(result.fetched >= 1);
+});
+
+test('tavily cache hit spends zero credits', async () => {
+  const cached = [{ url: 'https://cached.example/a', host: 'cached.example', title: 'Cached', text: 'x'.repeat(50) }];
+  const packed = await searchTavily('"some distinctive phrase here"', {
+    takeCached: async () => cached,
+    saveCached: async () => {
+      throw new Error('should not save');
+    },
+    fetchImpl: async () => {
+      throw new Error('should not fetch');
+    },
+  });
+  assert.equal(packed.credits, 0);
+  assert.equal(packed.cached, true);
+  assert.equal(packed.results[0].url, 'https://cached.example/a');
+});
+
+test('tavily normalizes raw content results', () => {
+  const rows = normalizeTavilyResults({
+    results: [
+      { url: 'https://a.example/1', title: 'One', raw_content: 'y'.repeat(500), content: 'short' },
+      { url: 'https://a.example/1', title: 'Dup' },
+      { url: 'https://b.example/2', title: 'Two', content: 'z'.repeat(500) },
+    ],
+  });
+  assert.equal(rows.length, 2);
+  assert.ok(rows[0].text.length >= 400);
+  assert.ok(rows[1].text.length >= 400);
+});
+
+test('monthly quota labels roll to the next UTC month', () => {
+  assert.equal(nextMonthLabel('2026-10'), '2026-11');
+  assert.equal(nextMonthLabel('2026-12'), '2027-01');
+  assert.match(currentMonth(new Date('2026-10-25T12:00:00Z')), /^2026-10$/);
 });

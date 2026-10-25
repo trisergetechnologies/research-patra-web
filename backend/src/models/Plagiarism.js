@@ -66,7 +66,30 @@ const plagBudgetSchema = new Schema(
   { timestamps: false }
 );
 
+const plagSearchCacheSchema = new Schema(
+  {
+    queryHash: { type: String, required: true, unique: true },
+    query: { type: String, default: '' },
+    results: { type: Schema.Types.Mixed, default: [] },
+    fetchedAt: { type: Date, default: Date.now },
+  },
+  { timestamps: false }
+);
+
+const plagMonthQuotaSchema = new Schema(
+  {
+    userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    month: { type: String, required: true },
+    checkCount: { type: Number, default: 0 },
+  },
+  { timestamps: false }
+);
+
+plagMonthQuotaSchema.index({ userId: 1, month: 1 }, { unique: true });
+
 export const PlagScan = mongoose.model('PlagScan', plagScanSchema);
 export const PlagFingerprint = mongoose.model('PlagFingerprint', plagFingerprintSchema);
 export const PlagPage = mongoose.model('PlagPage', plagPageSchema);
 export const PlagBudget = mongoose.model('PlagBudget', plagBudgetSchema);
+export const PlagSearchCache = mongoose.model('PlagSearchCache', plagSearchCacheSchema);
+export const PlagMonthQuota = mongoose.model('PlagMonthQuota', plagMonthQuotaSchema);

@@ -149,13 +149,24 @@ export async function summariesFor(postIds) {
 
 export function presentReport(scan) {
   if (!scan?.report) return null;
+  const web = scan.report.web || {};
   return {
     status: scan.status,
     verdict: scan.verdict,
     failureReason: scan.failureReason || '',
     finishedAt: scan.finishedAt || null,
     internal: scan.report.internal,
-    web: scan.report.web,
+    web: {
+      overlap: web.overlap ?? 0,
+      queries: web.queries ?? 0,
+      tavilyCredits: web.tavilyCredits ?? 0,
+      openAlexHits: web.openAlexHits ?? 0,
+      fetched: web.fetched ?? 0,
+      cached: web.cached ?? 0,
+      snippets: web.snippets ?? 0,
+      failed: web.failed ?? 0,
+      complete: !!web.complete,
+    },
     sources: scan.report.sources || [],
   };
 }

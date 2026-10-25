@@ -30,7 +30,7 @@ import * as T from '../controllers/cms.taxonomy.controller.js';
 import * as M from '../controllers/cms.media.controller.js';
 import * as A from '../controllers/cms.authors.controller.js';
 import { createPreviewTicket } from '../controllers/preview.controller.js';
-import { enqueuePlagiarism, getPlagiarism, getPlagiarismScan, listPlagiarism } from '../controllers/cms.plagiarism.controller.js';
+import { enqueuePlagiarism, getPlagiarism, getPlagiarismQuota, getPlagiarismScan, listPlagiarism } from '../controllers/cms.plagiarism.controller.js';
 
 const router = Router();
 const adminOnly = authorize(ROLES.ADMIN);
@@ -83,6 +83,7 @@ router.post('/posts/:id/restore', validate(postActionSchema), P.restorePost);
 router.post('/posts/:id/preview-ticket', previewLimiter, createPreviewTicket);
 router.post('/posts/:id/plagiarism', adminOnly, plagiarismLimiter, enqueuePlagiarism);
 router.get('/posts/:id/plagiarism', adminOnly, getPlagiarism);
+router.get('/plagiarism/quota', adminOnly, getPlagiarismQuota);
 router.get('/plagiarism', adminOnly, listPlagiarism);
 router.get('/plagiarism/:id', adminOnly, getPlagiarismScan);
 router.get('/posts/:id/review', RV.getReview);

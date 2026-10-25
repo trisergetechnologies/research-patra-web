@@ -114,10 +114,12 @@ export default function PlagiarismReport() {
   const summary = data?.summary;
   const report = data?.report;
   const article = data?.article;
+  const quota = data?.quota;
+  const outOfChecks = quota != null && quota.remaining <= 0;
 
   const start = () => {
     const postId = article?.id || id;
-    if (!postId) return;
+    if (!postId || outOfChecks) return;
     setBusy(true);
     cmsApi
       .startPlagiarism(postId)
@@ -171,10 +173,17 @@ export default function PlagiarismReport() {
         <div className="space-y-6">
           <p className={`text-sm font-medium ${plagiarismTone(summary)}`}>{plagiarismLabel(summary)}</p>
 
+          {quota && (
+            <p className="text-xs text-muted">
+              {quota.used} of {quota.limit} checks this month
+              {outOfChecks ? ` · Resets ${quota.resetMonth}` : ''}
+            </p>
+          )}
+
           {summary?.stale && (
             <p className="text-sm text-muted">
               The article changed after this check.{' '}
-              <button type="button" className="font-medium text-primaryGreen hover:underline" disabled={busy} onClick={start}>
+              <button type="button" className="font-medium text-primaryGreen hover:underline" disabled={busy || outOfChecks} onClick={start}>
                 {busy ? 'Sending…' : 'Check again'}
               </button>
             </p>
@@ -183,7 +192,7 @@ export default function PlagiarismReport() {
           {startsScan(summary) && (
             <p className="text-sm text-muted">
               Nothing has been checked yet.{' '}
-              <button type="button" className="font-medium text-primaryGreen hover:underline" disabled={busy} onClick={start}>
+              <button type="button" className="font-medium text-primaryGreen hover:underline" disabled={busy || outOfChecks} onClick={start}>
                 {busy ? 'Sending…' : 'Check plagiarism'}
               </button>
             </p>
@@ -210,7 +219,7 @@ export default function PlagiarismReport() {
                 <Figure label="Web" value={overlapPercent(report.web?.overlap)} hint={report.web?.complete ? 'Finished' : 'Incomplete'} />
                 <Figure
                   label="Coverage"
-                  value={String((report.web?.fetched || 0) + (report.web?.cached || 0))}
+                  value={String((report.web?.fetched || 0) + (report.web?.cached || 0) + (report.web?.snippets || 0))}
                   hint={`${report.web?.queries ?? 0} searches · ${report.web?.failed ?? 0} failed`}
                 />
               </div>

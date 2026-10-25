@@ -148,6 +148,7 @@ export const cmsApi = {
   getPlagiarism: (id) => api(`/cms/posts/${id}/plagiarism`),
   listPlagiarism: (params) => api(`/cms/plagiarism${toQuery(params)}`),
   getPlagiarismScan: (id) => api(`/cms/plagiarism/${id}`),
+  plagiarismQuota: () => api('/cms/plagiarism/quota'),
   getReview: (id) => api(`/cms/posts/${id}/review`),
   addComment: (id, data) => api(`/cms/posts/${id}/comments`, { method: 'POST', body: data }),
   updateComment: (id, cid, data) => api(`/cms/posts/${id}/comments/${cid}`, { method: 'PATCH', body: data }),
